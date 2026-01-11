@@ -1,10 +1,10 @@
-import { useRef, useState } from "react";
-import formalAiHero from "@/assets/formal-ai-hero-new.png";
+import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -16,6 +16,13 @@ const HeroSection = () => {
     });
   };
 
+  useEffect(() => {
+    // Set slow playback rate once video is loaded
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.4;
+    }
+  }, []);
+
   return (
     <section
       ref={sectionRef}
@@ -26,15 +33,25 @@ const HeroSection = () => {
         '--mouse-y': `${mousePosition.y}px`,
       } as React.CSSProperties}
     >
-      <div className="grid md:grid-cols-2 gap-6 md:gap-12 p-6 md:p-12 lg:p-16 items-center">
-        {/* Left side - CRM Visual */}
-        <div className="relative aspect-square rounded-[2rem] overflow-hidden animate-scale-in group flex items-center justify-center">
-          <img
-            src={formalAiHero}
-            alt="Formal.AI Professional Styling"
-            className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="grid md:grid-cols-2 gap-4 md:gap-12 p-4 pt-2 md:p-12 lg:p-16 items-center">
+        {/* Left side - Animated Video */}
+        <div className="relative aspect-square max-w-[280px] sm:max-w-[320px] md:max-w-[400px] lg:max-w-[500px] mx-auto md:ml-0 md:-mt-4 rounded-[2rem] overflow-hidden group flex items-center justify-center bg-black/5 animate-scale-in shadow-2xl">
+          <video
+            ref={videoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="w-full h-full object-cover pointer-events-none select-none"
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            <source src="/animated-hero.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          {/* Premium Gradient Overlay/Vignette */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10 pointer-events-none" />
+          <div className="absolute inset-0 ring-1 ring-inset ring-black/10 rounded-[2rem] pointer-events-none" />
         </div>
 
         {/* Right side - Content */}

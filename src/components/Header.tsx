@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, Moon, Sun, ChevronDown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Menu, X, Moon, Sun, ChevronDown, LogOut } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -13,9 +14,12 @@ import {
 import formalAiLogo from "@/assets/formal-ai-logo.png";
 
 const Header = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -43,8 +47,51 @@ const Header = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    // Auth listener
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setProfileName("");
+      }
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      subscription.unsubscribe();
+    };
   }, []);
+
+  const [profileName, setProfileName] = useState("");
+
+  const fetchProfile = async (userId: string) => {
+    // @ts-ignore
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', userId)
+      .single();
+
+    // @ts-ignore
+    if (data?.full_name) {
+      // @ts-ignore
+      setProfileName(data.full_name.split(' ')[0]);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
 
   const toggleTheme = () => {
     const newTheme = !isDark;
@@ -74,23 +121,28 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center min-w-0">
             <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-black rounded-lg flex items-center justify-center flex-shrink-0 border-2 border-white overflow-hidden p-0">
-                <img src={formalAiLogo} alt="Formal.AI Logo" className="w-full h-full object-cover scale-150" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-black rounded-lg flex items-center justify-center flex-shrink-0 border-2 border-white overflow-hidden p-0">
+                <img src={formalAiLogo} alt="Formal.AI Logo" className="w-full h-full object-contain p-1" />
               </div>
-              <span className="text-base sm:text-xl font-bold font-serif truncate">Formal.AI</span>
+              <span className="text-base sm:text-xl font-bold font-serif truncate">
+                {profileName ? `${profileName}'s Studio` : "Formal.AI"}
+              </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-2 relative z-10">
-            <Link to="/" className="text-sm font-medium glass-nav-item rounded-full px-4 py-2 transition-all">
+            <Link
+              to="/"
+              className={`glass-nav-item rounded-full px-4 py-2 transition-all nav-underline-effect ${location.pathname === "/" ? "active" : ""}`}
+            >
               Home
             </Link>
 
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm font-medium glass-nav-item rounded-full px-4 py-2 bg-transparent hover:bg-accent/50 data-[state=open]:bg-accent/50">
+                  <NavigationMenuTrigger className="glass-nav-item rounded-full px-4 py-2 bg-transparent hover:bg-accent/50 data-[state=open]:bg-accent/50">
                     Studios
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
@@ -138,10 +190,10 @@ const Header = () => {
                       <li>
                         <NavigationMenuLink asChild>
                           <Link
-                            to="/magic-prompt-studio"
+                            to="/prompt-yourself-studio"
                             className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                           >
-                            <div className="text-sm font-medium">Magic Prompt Studio</div>
+                            <div className="text-sm font-medium">Prompt Yourself Studio</div>
                           </Link>
                         </NavigationMenuLink>
                       </li>
@@ -151,13 +203,22 @@ const Header = () => {
               </NavigationMenuList>
             </NavigationMenu>
 
-            <Link to="/insights" className="text-sm font-medium glass-nav-item rounded-full px-4 py-2 transition-all">
-              Insights
+            <Link
+              to="/pricing"
+              className={`glass-nav-item rounded-full px-4 py-2 transition-all nav-underline-effect ${location.pathname === "/pricing" ? "active" : ""}`}
+            >
+              Pricing
             </Link>
-            <Link to="/contacts" className="text-sm font-medium glass-nav-item rounded-full px-4 py-2 transition-all">
+            <Link
+              to="/contacts"
+              className={`glass-nav-item rounded-full px-4 py-2 transition-all nav-underline-effect ${location.pathname === "/contacts" ? "active" : ""}`}
+            >
               Contacts
             </Link>
-            <Link to="/about" className="text-sm font-medium glass-nav-item rounded-full px-4 py-2 transition-all">
+            <Link
+              to="/about"
+              className={`glass-nav-item rounded-full px-4 py-2 transition-all nav-underline-effect ${location.pathname === "/about" ? "active" : ""}`}
+            >
               About
             </Link>
           </nav>
@@ -176,11 +237,35 @@ const Header = () => {
               )}
             </button>
 
-            <Link to="/dashboard">
-              <Button className="hidden md:flex bg-primary/90 backdrop-blur-sm hover:bg-primary text-primary-foreground rounded-full px-8 py-2 hover:scale-105 transition-all shadow-lg">
-                Join Now
-              </Button>
-            </Link>
+            {user ? (
+              <div className="flex items-center gap-4">
+                <Link to="/dashboard">
+                  <Button className="hidden md:flex bg-primary/90 backdrop-blur-sm hover:bg-primary text-primary-foreground rounded-full px-6 py-2 hover:scale-105 transition-all shadow-lg">
+                    Dashboard
+                  </Button>
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="hidden md:flex p-2 rounded-full glass-nav-item hover:bg-red-500/10 hover:text-red-500 transition-all"
+                  title="Sign Out"
+                >
+                  <LogOut className="h-5 w-5" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link to="/auth">
+                  <Button variant="ghost" className="hidden md:flex text-sm font-medium hover:bg-transparent hover:text-primary transition-colors">
+                    Log in
+                  </Button>
+                </Link>
+                <Link to="/auth?signup=true">
+                  <Button className="hidden md:flex bg-primary/90 backdrop-blur-sm hover:bg-primary text-primary-foreground rounded-full px-6 py-2 hover:scale-105 transition-all shadow-lg">
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
+            )}
 
             {/* Mobile Menu Button */}
             <button
@@ -213,11 +298,11 @@ const Header = () => {
               <Link to="/background-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
                 Background Studio
               </Link>
-              <Link to="/magic-prompt-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
-                Magic Prompt Studio
+              <Link to="/prompt-yourself-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
+                Prompt Yourself Studio
               </Link>
-              <Link to="/insights" className="text-sm font-medium hover:text-accent transition-colors">
-                Insights
+              <Link to="/pricing" className="text-sm font-medium hover:text-accent transition-colors">
+                Pricing
               </Link>
               <Link to="/contacts" className="text-sm font-medium hover:text-accent transition-colors">
                 Contacts

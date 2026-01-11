@@ -2,10 +2,12 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Sparkles, Camera, Users, ImageIcon } from "lucide-react";
-import EditorLayout from "@/components/EditorLayout";
+import StudioLayout from "@/components/StudioLayout";
 import { GenderMode } from "@/data/studioOptions";
+import { supabase } from "@/integrations/supabase/client";
 
 interface StudioPageLayoutProps {
   title: string;
@@ -26,6 +28,7 @@ const StudioPageLayout = ({ title, subtitle, studioType, children }: StudioPageL
   const [genderMode, setGenderMode] = useState<GenderMode | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selections, setSelections] = useState<Record<string, string>>({});
+  const [agreement, setAgreement] = useState(false);
   const { toast } = useToast();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -83,39 +86,72 @@ const StudioPageLayout = ({ title, subtitle, studioType, children }: StudioPageL
       return;
     }
 
+    if (!agreement) {
+      toast({
+        title: "Agreement Required",
+        description: "Please agree to the Terms of Service to proceed.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
 
-    const instructions = Object.entries(selections)
-      .filter(([_, value]) => value && value !== "None")
-      .map(([key, value]) => `${key.replace(/([A-Z])/g, ' $1').trim()}: ${value}`)
-      .join(", ");
-
     try {
-      const response = await fetch('/api/studio-refinement', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          image: generatedImage,
-          studio: studioType,
-          genderMode,
-          instructions,
-          userId: 'user-123'
-        })
+      // 1. Get User
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({ title: "Authentication Required", description: "Please log in to generate images.", variant: "destructive" });
+        return;
+      }
+
+      // 2. Prepare Constraints
+      // Filter out empty/None values
+      const constraints = Object.entries(selections).reduce((acc, [key, value]) => {
+        if (value && value !== "None") {
+          acc[key] = value;
+        }
+        return acc;
+      }, {} as Record<string, string>);
+
+      // 3. Call Backend
+      const { data, error } = await supabase.functions.invoke('generate-ai', {
+        body: {
+          type: studioType.toLowerCase(),
+          userId: session.user.id,
+          image: generatedImage, // Sending Base64 (Caution: Size limit)
+          constraints: {
+            ...constraints,
+            genderMode // Include gender mode in constraints
+          }
+        }
       });
 
-      if (!response.ok) throw new Error('Failed to regenerate');
+      if (error) {
+        if (error.status === 429) {
+          throw new Error("You're generating too fast! Please wait a moment.");
+        }
+        throw error;
+      }
 
-      const data = await response.json();
-      setGeneratedImage(data.enhancedImage);
+      if (data.error) throw new Error(data.error);
+
+      console.log("Generation Success:", data);
 
       toast({
-        title: "Success!",
-        description: "Your image has been refined.",
+        title: "Generation Complete",
+        description: "Your image has been processed successfully.",
       });
-    } catch (error) {
+
+      // If we got a real image result (if we were using image model), we'd update it here.
+      // setGeneratedImage(data.result); 
+
+    } catch (error: any) {
+      console.error("Generation failed:", error);
       toast({
-        title: "Processing...",
-        description: "Backend integration pending. Your selections have been captured.",
+        title: "Generation Failed",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -136,7 +172,7 @@ const StudioPageLayout = ({ title, subtitle, studioType, children }: StudioPageL
   };
 
   return (
-    <EditorLayout>
+    <StudioLayout>
       <div className="min-h-screen bg-background py-8 px-6">
         <div className="max-w-5xl mx-auto space-y-8">
           {/* Header */}
@@ -151,23 +187,20 @@ const StudioPageLayout = ({ title, subtitle, studioType, children }: StudioPageL
 
           {/* Step Indicator */}
           <div className="flex items-center justify-center gap-4 flex-wrap">
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-              currentStep === "gender" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-            }`}>
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${currentStep === "gender" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              }`}>
               <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-sm font-bold">1</span>
               <span className="text-sm font-medium">Gender</span>
             </div>
             <div className="w-8 h-0.5 bg-border hidden sm:block" />
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-              currentStep === "upload" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-            }`}>
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${currentStep === "upload" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              }`}>
               <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-sm font-bold">2</span>
               <span className="text-sm font-medium">Upload</span>
             </div>
             <div className="w-8 h-0.5 bg-border hidden sm:block" />
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-              currentStep === "customize" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-            }`}>
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${currentStep === "customize" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              }`}>
               <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-sm font-bold">3</span>
               <span className="text-sm font-medium">Customize</span>
             </div>
@@ -325,8 +358,22 @@ const StudioPageLayout = ({ title, subtitle, studioType, children }: StudioPageL
                   {children({ genderMode, selections, handleSelectionChange })}
                 </div>
 
+                <div className="flex items-center space-x-2 justify-center py-2">
+                  <Checkbox
+                    id="terms"
+                    checked={agreement}
+                    onCheckedChange={(checked) => setAgreement(checked as boolean)}
+                  />
+                  <Label
+                    htmlFor="terms"
+                    className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    I agree to the Terms of Service and Privacy Policy
+                  </Label>
+                </div>
+
                 {/* Regenerate Button */}
-                <div className="flex justify-center pt-4">
+                <div className="flex justify-center pt-2">
                   <Button
                     onClick={handleRegenerate}
                     disabled={isLoading}
@@ -350,7 +397,7 @@ const StudioPageLayout = ({ title, subtitle, studioType, children }: StudioPageL
           )}
         </div>
       </div>
-    </EditorLayout>
+    </StudioLayout>
   );
 };
 

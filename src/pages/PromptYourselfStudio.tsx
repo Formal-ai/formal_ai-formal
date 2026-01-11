@@ -2,9 +2,11 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Sparkles, Camera, Wand2, ImageIcon } from "lucide-react";
-import EditorLayout from "@/components/EditorLayout";
+import StudioLayout from "@/components/StudioLayout";
+import { supabase } from "@/integrations/supabase/client";
 
 type StudioStep = "upload" | "customize";
 
@@ -12,6 +14,7 @@ const PromptYourselfStudio = () => {
   const [currentStep, setCurrentStep] = useState<StudioStep>("upload");
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [customPrompt, setCustomPrompt] = useState("");
+  const [agreement, setAgreement] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -75,34 +78,57 @@ const PromptYourselfStudio = () => {
       return;
     }
 
+    if (!agreement) {
+      toast({
+        title: "Agreement Required",
+        description: "Please agree to the Terms of Service.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/studio-refinement', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      // 1. Get User
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({ title: "Authentication Required", description: "Please log in.", variant: "destructive" });
+        return;
+      }
+
+      // 2. Call Backend
+      const { data, error } = await supabase.functions.invoke('generate-ai', {
+        body: {
+          type: 'magic',
+          userId: session.user.id,
           image: generatedImage,
-          studio: "PromptYourself",
-          genderMode: "Unspecified",
-          instructions: customPrompt,
-          userId: 'user-123'
-        })
+          prompt: customPrompt // Passing 'prompt' for magic type
+        }
       });
 
-      if (!response.ok) throw new Error('Failed to regenerate');
+      if (error) {
+        if (error.status === 429) throw new Error("Rate limit exceeded. Please slow down.");
+        throw error;
+      }
 
-      const data = await response.json();
-      setGeneratedImage(data.enhancedImage);
+      if (data.error) throw new Error(data.error);
+
+      console.log("Generation Success:", data);
 
       toast({
-        title: "Success!",
-        description: "Your image has been refined.",
+        title: "Magic Complete",
+        description: "Your custom styling has been applied.",
       });
-    } catch (error) {
+
+      // setGeneratedImage(data.result);
+
+    } catch (error: any) {
+      console.error("Magic generation failed:", error);
       toast({
-        title: "Processing...",
-        description: "Backend integration pending. Your prompt has been captured.",
+        title: "Generation Failed",
+        description: error.message || "Something went wrong.",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -110,13 +136,13 @@ const PromptYourselfStudio = () => {
   };
 
   return (
-    <EditorLayout>
+    <StudioLayout>
       <div className="min-h-screen bg-background py-8 px-6">
         <div className="max-w-5xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center space-y-3 animate-fade-in">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight font-serif">
-              PromptYourself Studio
+              Prompt Yourself Studio
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Describe any modification you want and let AI bring your vision to life.
@@ -125,16 +151,14 @@ const PromptYourselfStudio = () => {
 
           {/* Step Indicator */}
           <div className="flex items-center justify-center gap-4">
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-              currentStep === "upload" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-            }`}>
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${currentStep === "upload" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              }`}>
               <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-sm font-bold">1</span>
               <span className="text-sm font-medium">Upload</span>
             </div>
             <div className="w-8 h-0.5 bg-border" />
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-              currentStep === "customize" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-            }`}>
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${currentStep === "customize" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              }`}>
               <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-sm font-bold">2</span>
               <span className="text-sm font-medium">Describe</span>
             </div>
@@ -250,8 +274,22 @@ const PromptYourselfStudio = () => {
                   </p>
                 </div>
 
+                <div className="flex items-center space-x-2 justify-center py-2">
+                  <Checkbox
+                    id="terms"
+                    checked={agreement}
+                    onCheckedChange={(checked) => setAgreement(checked as boolean)}
+                  />
+                  <Label
+                    htmlFor="terms"
+                    className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    I agree to the Terms of Service and Privacy Policy
+                  </Label>
+                </div>
+
                 {/* Generate Button */}
-                <div className="flex justify-center pt-4">
+                <div className="flex justify-center pt-2">
                   <Button
                     onClick={handleRegenerate}
                     disabled={isLoading || !customPrompt.trim()}
@@ -275,7 +313,7 @@ const PromptYourselfStudio = () => {
           )}
         </div>
       </div>
-    </EditorLayout>
+    </StudioLayout>
   );
 };
 

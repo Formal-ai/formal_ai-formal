@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Label } from "@/components/ui/label";
 import EditorLayout from "@/components/EditorLayout";
 import { Button } from "@/components/ui/button";
@@ -94,24 +95,51 @@ const Generate = () => {
         }, 1000);
     };
 
-    const handleGenerate = () => {
+    const handleGenerate = async () => {
         setStep("generating");
-        setGenerationProgress(0);
+        setGenerationProgress(10); // Start progress
 
-        // Simulate generation with strict parameters enforced
-        const interval = setInterval(() => {
-            setGenerationProgress((prev) => {
-                if (prev >= 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        setStep("complete");
-                        toast.success("Professional Headshot Generated Successfully");
-                    }, 500);
-                    return 100;
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (!session) {
+                toast.error("You must be logged in to generate images.");
+                setStep("config");
+                return;
+            }
+
+            // In a real app, we would upload the file to Supabase Storage here first
+            // const { data: uploadData, error: uploadError } = await supabase.storage.from('uploads').upload(...)
+
+            // For now, we call the Edge Function acting as the 'hedge'
+            const { data, error } = await supabase.functions.invoke('generate-ai', {
+                body: {
+                    prompt: "Generate professional headshot based on uploaded context",
+                    userId: session.user.id,
+                    type: 'image-generation'
                 }
-                return prev + 1; // Slower generation to imply heavy processing
             });
-        }, 80);
+
+            if (error) throw error;
+
+            console.log("Generation result:", data);
+
+            // Simulate progress for the UX while the 'hedge' function processes (if it were long polling)
+            // or confirm immediate success
+            setGenerationProgress(100);
+
+            setTimeout(() => {
+                setStep("complete");
+                toast.success("Professional Headshot Generated Successfully");
+                // In a real scenario, we would setPreviewUrl(data.result_url)
+            }, 500);
+
+        } catch (err: any) {
+            console.error("Generation error:", err);
+            setError(err.message || "Failed to generate image");
+            setStep("config"); // Go back
+            toast.error("Generation failed. Please try again.");
+        }
     };
 
     const resetFlow = () => {

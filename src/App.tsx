@@ -7,7 +7,6 @@ import Index from "./pages/Index";
 
 import Auth from "./pages/Auth";
 import Contacts from "./pages/Contacts";
-import Insights from "./pages/Insights";
 import Article from "./pages/Article";
 import Wellness from "./pages/Wellness";
 import Travel from "./pages/Travel";
@@ -36,6 +35,10 @@ import Careers from "./pages/Careers";
 import Pricing from "./pages/Pricing";
 import Documentation from "./pages/Documentation";
 import Generate from "./pages/Generate";
+import Personalization from "./pages/Personalization";
+import Help from "./pages/Help";
+
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -51,7 +54,6 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
 
             <Route path="/contacts" element={<Contacts />} />
-            <Route path="/insights" element={<Insights />} />
             <Route path="/article/:id" element={<Article />} />
             <Route path="/wellness" element={<Wellness />} />
             <Route path="/travel" element={<Travel />} />
@@ -63,22 +65,27 @@ const App = () => (
             <Route path="/style-guide" element={<StyleGuide />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/portrait-studio" element={<PortraitStudio />} />
-            <Route path="/hair-studio" element={<HairStudio />} />
-            <Route path="/accessories-studio" element={<AccessoriesStudio />} />
-            <Route path="/background-studio" element={<BackgroundStudio />} />
 
-            <Route path="/prompt-yourself-studio" element={<PromptYourselfStudio />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/downloads" element={<Downloads />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/studio-refinement" element={<StudioRefinement />} />
+            {/* Protected Routes */}
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/portrait-studio" element={<ProtectedRoute><PortraitStudio /></ProtectedRoute>} />
+            <Route path="/hair-studio" element={<ProtectedRoute><HairStudio /></ProtectedRoute>} />
+            <Route path="/accessories-studio" element={<ProtectedRoute><AccessoriesStudio /></ProtectedRoute>} />
+            <Route path="/background-studio" element={<ProtectedRoute><BackgroundStudio /></ProtectedRoute>} />
+            <Route path="/prompt-yourself-studio" element={<ProtectedRoute><PromptYourselfStudio /></ProtectedRoute>} />
+            <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
+            <Route path="/downloads" element={<ProtectedRoute><Downloads /></ProtectedRoute>} />
+            <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/studio-refinement" element={<ProtectedRoute><StudioRefinement /></ProtectedRoute>} />
+            <Route path="/generate" element={<ProtectedRoute><Generate /></ProtectedRoute>} />
+            <Route path="/personalization" element={<ProtectedRoute><Personalization /></ProtectedRoute>} />
+            <Route path="/help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
+
             <Route path="/careers" element={<Careers />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/documentation" element={<Documentation />} />
-            <Route path="/generate" element={<Generate />} />
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

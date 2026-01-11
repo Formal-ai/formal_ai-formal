@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Bell, Layers, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const KeyBenefitsSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -17,22 +18,25 @@ const KeyBenefitsSection = () => {
     {
       icon: Bell,
       title: "Photorealistic Virtual Styling",
-      description: "AI-powered image editing that preserves your identity while transforming your professional appearance."
+      description: "AI-powered image editing that preserves your identity while transforming your professional appearance.",
+      path: "/portrait-studio"
     },
     {
       icon: Layers,
       title: "Accessory & Style Editing",
-      description: "Easily modify ties, bows, watches, glasses, hair color and style without distortion—all naturally realistic."
+      description: "Easily modify ties, bows, watches, glasses, hair color and style without distortion—all naturally realistic.",
+      path: "/accessories-studio"
     },
     {
       icon: TrendingUp,
       title: "Professional Image Enhancement",
-      description: "Automatic lighting, color correction, and background replacement for business-ready images."
+      description: "Automatic lighting, color correction, and background replacement for business-ready images.",
+      path: "/background-studio"
     }
   ];
 
   return (
-    <section 
+    <section
       ref={sectionRef}
       onMouseMove={handleMouseMove}
       className="py-16 md:py-24 animate-fade-in liquid-glass-section"
@@ -54,9 +58,10 @@ const KeyBenefitsSection = () => {
         {benefits.map((benefit, index) => {
           const Icon = benefit.icon;
           return (
-            <div
+            <Link
               key={index}
-              className="ios-glass-card p-8 text-center group hover:scale-105 transition-all duration-500 animate-scale-in"
+              to={benefit.path}
+              className="ios-glass-card p-8 text-center group hover:scale-105 transition-all duration-500 animate-scale-in flex flex-col items-center"
               style={{ animationDelay: `${index * 150}ms` }}
             >
               <div className="relative inline-block mb-6">
@@ -65,10 +70,10 @@ const KeyBenefitsSection = () => {
                   <Icon size={48} strokeWidth={1.5} className="text-primary" />
                 </div>
               </div>
-              
+
               <h3 className="text-xl font-semibold mb-3">{benefit.title}</h3>
               <p className="text-muted-foreground leading-relaxed">{benefit.description}</p>
-            </div>
+            </Link>
           );
         })}
       </div>

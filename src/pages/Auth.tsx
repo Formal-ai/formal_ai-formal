@@ -1,20 +1,23 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, Mail, CheckCircle2, AlertCircle, ArrowRight } from "lucide-react";
-import formalAiHero from "@/assets/formal-ai-hero-new.png";
+import formalAiHero from "@/assets/auth-hero-new.jpg";
+import signupHero from "@/assets/signup-hero.jpg";
 import formalAiLogo from "@/assets/formal-ai-logo.png";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(searchParams.get("signup") === "true");
   const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [verificationSent, setVerificationSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,10 +51,23 @@ const Auth = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const validatePassword = (pass: string) => {
+    if (pass.length >= 15) return true;
+    const hasNumber = /\d/.test(pass);
+    const hasLower = /[a-z]/.test(pass);
+    return pass.length >= 8 && hasNumber && hasLower;
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+
+    if (isSignUp && !validatePassword(password)) {
+      setError("Password should be at least 15 characters OR at least 8 characters including a number and a lowercase letter.");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       if (isSignUp) {
@@ -59,33 +75,47 @@ const Auth = () => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`
+            emailRedirectTo: `${window.location.origin}/auth?verified=true`,
+            data: {
+              full_name: fullName,
+            }
           }
         });
 
         if (error) throw error;
         setVerificationSent(true);
-        toast.success("Account created successfully!");
+        toast.success("Account created successfully! Check your email to activate.");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error, data } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (error) throw error;
+
+        // Check if email is confirmed
+        if (data.user && !data.user.email_confirmed_at) {
+          setError("Please confirm your email address before signing in.");
+          await supabase.auth.signOut();
+          return;
+        }
+
         toast.success("Welcome back!");
+        const redirectTo = searchParams.get("redirectTo") || "/dashboard";
+        navigate(redirectTo);
       }
     } catch (error: any) {
       console.error("Auth error:", error);
       let errorMessage = "An error occurred during authentication";
 
-      // Map common Supabase errors to user-friendly messages
       if (error.message.includes("Invalid login credentials")) {
         errorMessage = "Invalid email or password. Please try again.";
       } else if (error.message.includes("User already registered")) {
         errorMessage = "This email is already registered. Please sign in instead.";
       } else if (error.message.includes("Password should be at least")) {
-        errorMessage = "Password must be at least 6 characters long.";
+        errorMessage = "Password does not meet safety requirements.";
+      } else if (error.message.includes("Email not confirmed")) {
+        errorMessage = "Please verify your email address before logging in.";
       }
 
       setError(errorMessage);
@@ -95,20 +125,23 @@ const Auth = () => {
     }
   };
 
-  if (verificationSent) {
+  if (verificationSent || searchParams.get("verification") === "pending") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4 animate-fade-in">
         <div className="w-full max-w-md text-center space-y-6">
-          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Mail className="w-8 h-8 text-green-600 dark:text-green-400" />
+          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Mail className="w-8 h-8 text-primary" />
           </div>
           <h2 className="text-3xl font-bold tracking-tight">Check your inbox</h2>
           <p className="text-muted-foreground text-lg">
-            We've sent a verification link to <span className="font-semibold text-foreground">{email}</span>.
-            Please confirm your email to activate your account.
+            We've sent a verification link to <span className="font-semibold text-foreground">{email || "your email"}</span>.
+            Please confirm your email to activate your account and access the Studios.
           </p>
-          <div className="pt-4">
-            <Button variant="outline" onClick={() => setVerificationSent(false)} className="rounded-full px-8">
+          <div className="pt-4 flex flex-col gap-3">
+            <Button variant="outline" onClick={() => {
+              setVerificationSent(false);
+              navigate("/auth");
+            }} className="rounded-full px-8">
               Back to Sign In
             </Button>
           </div>
@@ -124,8 +157,8 @@ const Auth = () => {
         <div className="w-full max-w-sm mx-auto space-y-8">
           {/* Logo */}
           <div className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
-              <img src={formalAiLogo} alt="Formal.AI" className="w-6 h-6 object-contain" />
+            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
+              <img src={formalAiLogo} alt="Formal.AI" className="w-10 h-10 object-contain" />
             </div>
             <span className="text-xl font-bold font-serif">Formal.AI</span>
           </div>
@@ -141,6 +174,14 @@ const Auth = () => {
             </p>
           </div>
 
+          {searchParams.get("verified") === "true" && (
+            <Alert className="bg-green-500/10 border-green-500/50 text-green-600 dark:text-green-400">
+              <CheckCircle2 className="h-4 w-4" />
+              <AlertTitle>Success</AlertTitle>
+              <AlertDescription>Your email has been verified! You can now sign in.</AlertDescription>
+            </Alert>
+          )}
+
           {error && (
             <Alert variant="destructive" className="animate-in fade-in-0 slide-in-from-top-1">
               <AlertCircle className="h-4 w-4" />
@@ -151,11 +192,26 @@ const Auth = () => {
 
           <form onSubmit={handleAuth} className="space-y-6">
             <div className="space-y-4">
+              {isSignUp && (
+                <div className="space-y-2 animate-slide-up">
+                  <Label htmlFor="full-name">Full name*</Label>
+                  <Input
+                    id="full-name"
+                    type="text"
+                    placeholder="John Doe"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    className="h-12 rounded-xl bg-muted/50 border-transparent focus:border-primary focus:bg-background transition-all"
+                  />
+                </div>
+              )}
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email*</Label>
                 <Input
                   id="email"
                   type="email"
+                  placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -164,7 +220,7 @@ const Auth = () => {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">Password*</Label>
                   {!isSignUp && (
                     <button type="button" className="text-sm font-medium text-primary hover:underline" tabIndex={-1}>
                       Forgot password?
@@ -174,12 +230,17 @@ const Auth = () => {
                 <Input
                   id="password"
                   type="password"
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={6}
                   className="h-12 rounded-xl bg-muted/50 border-transparent focus:border-primary focus:bg-background transition-all"
                 />
+                {isSignUp && (
+                  <p className="text-[10px] text-muted-foreground px-1 leading-tight">
+                    Password should be at least 15 characters OR at least 8 characters including a number and a lowercase letter.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -258,63 +319,54 @@ const Auth = () => {
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 setError(null);
+                // Update URL for better UX
+                navigate(`/auth${!isSignUp ? '?signup=true' : ''}`, { replace: true });
               }}
               className="font-semibold text-primary hover:underline transition-all"
             >
               {isSignUp ? "Sign in" : "Sign up"}
             </button>
           </div>
+
+          {isSignUp && (
+            <div className="text-[10px] text-muted-foreground text-center animate-fade-in px-2">
+              By creating an account, you agree to the <Link to="/terms" className="underline">Terms of Service</Link>. For more information about Formal.AI's privacy practices, see the <Link to="/privacy" className="underline">Formal.AI Privacy Statement</Link>. We'll occasionally send you account-related emails.
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Right Column - Animation */}
+      {/* Right Column - Hero Image with Shine */}
       <div
-        ref={sideSectionRef}
-        onMouseMove={handleMouseMove}
-        className="hidden lg:flex relative bg-muted items-center justify-center overflow-hidden"
+        className="hidden lg:flex relative bg-black items-center justify-center overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/5" />
+        <img
+          key={isSignUp ? "signup" : "login"}
+          src={isSignUp ? signupHero : formalAiHero}
+          alt="Formal Attire"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[20s] hover:scale-110 animate-fade-in"
+        />
 
-        {/* Animated Background Elements */}
-        <div
-          className="absolute inset-0 opacity-30"
-          style={{
-            transform: `translate(${mousePosition.x * -20}px, ${mousePosition.y * -20}px)`,
-            transition: 'transform 0.2s ease-out'
-          }}
-        >
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse animation-delay-1000" />
+        {/* Shine Overlay */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent translate-x-[-150%] animate-shine" />
         </div>
 
-        {/* Main Floating Image */}
-        <div
-          className="relative z-10 max-w-[80%] max-h-[80%] aspect-square rounded-[3rem] overflow-hidden shadow-2xl border border-white/20"
-          style={{
-            transform: `perspective(1000px) rotateY(${mousePosition.x * 10}deg) rotateX(${mousePosition.y * -10}deg) translate(${mousePosition.x * 20}px, ${mousePosition.y * 20}px)`,
-            transition: 'transform 0.1s ease-out',
-            boxShadow: `${mousePosition.x * -30}px ${mousePosition.y * -30}px 60px rgba(0,0,0,0.2)`
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10" />
-          <img
-            src={formalAiHero}
-            alt="Formal.AI Professional Look"
-            className="w-full h-full object-cover"
-          />
-
-          <div className="absolute bottom-0 left-0 right-0 p-8 z-20 text-white transform transition-transform duration-500"
-            style={{
-              transform: `translate(${mousePosition.x * -10}px, ${mousePosition.y * -10}px)`
-            }}
-          >
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-              <h3 className="text-2xl font-bold mb-2">Professional Excellence</h3>
-              <p className="text-white/80">Refine your professional image with AI-powered precision.</p>
-            </div>
+        {/* Text Overlay */}
+        <div className="relative z-10 p-12 text-center space-y-4 max-w-lg">
+          <div className="ios-glass p-8 rounded-[2rem] border-white/10 backdrop-blur-2xl animate-fade-in shadow-2xl">
+            <h3 className="text-3xl font-bold text-white mb-2 font-serif">Redefine Professionalism</h3>
+            <p className="text-white/70 text-lg leading-relaxed">
+              Experience the next generation of AI-powered formal styling.
+            </p>
           </div>
         </div>
+
+        {/* Decorative corner accents */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-[100px] rounded-full" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 blur-[100px] rounded-full" />
       </div>
+
     </div>
   );
 };
