@@ -6,6 +6,8 @@ const HeroSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!sectionRef.current) return;
@@ -17,10 +19,34 @@ const HeroSection = () => {
   };
 
   useEffect(() => {
-    // Set slow playback rate once video is loaded
-    if (videoRef.current) {
-      videoRef.current.playbackRate = 0.4;
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Set slow playback rate
+    video.playbackRate = 0.4;
+
+    // Handle video ready states
+    const handleCanPlay = () => {
+      setIsVideoLoaded(true);
+    };
+
+    const handlePlaying = () => {
+      setIsVideoPlaying(true);
+    };
+
+    video.addEventListener("canplaythrough", handleCanPlay);
+    video.addEventListener("playing", handlePlaying);
+
+    // Check if already loaded (cached)
+    if (video.readyState >= 3) {
+      setIsVideoLoaded(true);
+      setIsVideoPlaying(true);
     }
+
+    return () => {
+      video.removeEventListener("canplaythrough", handleCanPlay);
+      video.removeEventListener("playing", handlePlaying);
+    };
   }, []);
 
   return (
@@ -34,21 +60,41 @@ const HeroSection = () => {
       } as React.CSSProperties}
     >
       <div className="grid md:grid-cols-2 gap-4 md:gap-12 p-4 pt-2 md:p-12 lg:p-16 items-center">
-        {/* Left side - Animated Video */}
+        {/* Left side - Animated Video with Loading State */}
         <div className="relative aspect-square max-w-[280px] sm:max-w-[320px] md:max-w-[400px] lg:max-w-[500px] mx-auto md:ml-0 md:-mt-4 rounded-[2rem] overflow-hidden group flex items-center justify-center bg-black/5 animate-scale-in shadow-2xl">
+
+          {/* Poster Image - Shows immediately */}
+          <img
+            src="/hero-poster.png"
+            alt="Formal.AI Hero"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isVideoPlaying ? "opacity-0" : "opacity-100"
+              }`}
+          />
+
+          {/* Loading Shimmer Overlay - Shows while video is loading */}
+          {!isVideoLoaded && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
+              style={{ backgroundSize: '200% 100%' }}
+            />
+          )}
+
+          {/* Video - Fades in when ready */}
           <video
             ref={videoRef}
             autoPlay
             loop
             muted
             playsInline
-            preload="auto"
-            className="w-full h-full object-cover pointer-events-none select-none"
+            preload="metadata"
+            poster="/hero-poster.png"
+            className={`w-full h-full object-cover pointer-events-none select-none transition-opacity duration-700 ${isVideoPlaying ? "opacity-100" : "opacity-0"
+              }`}
             onContextMenu={(e) => e.preventDefault()}
           >
             <source src="/animated-hero.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
+
           {/* Premium Gradient Overlay/Vignette */}
           <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10 pointer-events-none" />
           <div className="absolute inset-0 ring-1 ring-inset ring-black/10 rounded-[2rem] pointer-events-none" />
