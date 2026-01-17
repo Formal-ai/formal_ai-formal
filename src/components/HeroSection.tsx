@@ -67,7 +67,7 @@ const HeroSection = () => {
             </p>
           </div>
 
-          <Link to="/dashboard" className="animate-scale-in stagger-2">
+          <Link to="/generate" className="animate-scale-in stagger-2">
             <Button className="ios-glass-button px-8 py-6 text-lg rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg">
               Generate New Look
             </Button>

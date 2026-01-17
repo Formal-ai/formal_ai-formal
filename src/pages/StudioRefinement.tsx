@@ -1,10 +1,27 @@
 import { useState, useRef, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import EditorLayout from "@/components/EditorLayout";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Upload, Wand2 } from "lucide-react";
+import {
+  Sparkles,
+  RotateCcw,
+  Download,
+  Share2,
+  History,
+  Wand2,
+  MessageSquare,
+  ChevronLeft,
+  Settings2,
+  Image as ImageIcon,
+  Upload
+} from "lucide-react";
+import { toast as sonnerToast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { uploadImage } from "@/utils/upload";
 
 type GenderMode = "Gentlemen" | "Ladies";
 type StudioType = "Portrait" | "Hair" | "Accessories" | "Background" | "PromptYourself";
@@ -85,6 +102,8 @@ const STUDIO_OPTIONS = {
 };
 
 const StudioRefinement = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [genderMode, setGenderMode] = useState<GenderMode>("Gentlemen");
   const [studioType, setStudioType] = useState<StudioType>("Portrait");
@@ -92,9 +111,19 @@ const StudioRefinement = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selections, setSelections] = useState<Record<string, string>>({});
   const { toast } = useToast();
-  
+
   const sectionRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const img = searchParams.get("image");
+    const mode = searchParams.get("gender") as GenderMode;
+    const type = searchParams.get("type") as StudioType;
+
+    if (img) setGeneratedImage(img);
+    if (mode) setGenderMode(mode);
+    if (type) setStudioType(type);
+  }, [searchParams]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!sectionRef.current) return;
@@ -137,43 +166,60 @@ const StudioRefinement = () => {
     }
 
     setIsLoading(true);
-    
+
     // Build instructions from selections
-    const instructions = studioType === "PromptYourself" 
-      ? customPrompt 
+    const instructions = studioType === "PromptYourself"
+      ? customPrompt
       : Object.entries(selections)
-          .map(([key, value]) => `${key}: ${value}`)
-          .join(", ");
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(", ");
 
     try {
-      // TODO: Replace with actual n8n endpoint
-      const response = await fetch('/api/studio-refinement', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          image: generatedImage,
-          studio: studioType,
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        sonnerToast.error("Please log in to continue");
+        return;
+      }
+
+      // Storage Flow
+      let finalImageUrl = generatedImage;
+      if (generatedImage.startsWith('data:')) {
+        finalImageUrl = await uploadImage(generatedImage);
+      }
+
+      const { data, error } = await supabase.functions.invoke('generate-ai', {
+        body: {
+          imageUrl: finalImageUrl,
+          type: studioType.toLowerCase(),
           genderMode,
-          instructions,
-          userId: 'user-123' // TODO: Replace with actual user ID
-        })
+          prompt: instructions,
+          userId: session.user.id
+        }
       });
 
-      if (!response.ok) throw new Error('Failed to regenerate');
+      if (error || data.error) throw new Error(error?.message || data.error || 'Failed to refine');
 
-      const data = await response.json();
-      setGeneratedImage(data.enhancedImage);
-      
+      // Update the UI with processed result
+      if (data.result) {
+        setGeneratedImage(data.result);
+      }
+
+      // In this demo flow, we re-set the image or show the new analysis
       toast({
         title: "Success!",
-        description: "Your image has been refined.",
+        description: data.message || "Your image has been refined.",
       });
-    } catch (error) {
+
+      if (data.description) {
+        toast({
+          title: "AI Stylist Insights",
+          description: data.description.slice(0, 100) + "...",
+        });
+      }
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to regenerate image. Please try again.",
+        description: error.message || "Failed to regenerate image. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -263,13 +309,13 @@ const StudioRefinement = () => {
             Studio Refinement
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Intelligent AI-powered refinements for your professional appearance. 
+            Intelligent AI-powered refinements for your professional appearance.
             Select your preferences and watch the magic happen.
           </p>
         </div>
 
         {/* Image Preview Section */}
-        <div 
+        <div
           ref={sectionRef}
           onMouseMove={handleMouseMove}
           className="rounded-3xl ios-glass-card liquid-glass-section p-8 animate-scale-in"
@@ -280,9 +326,9 @@ const StudioRefinement = () => {
         >
           {generatedImage ? (
             <div className="relative aspect-square max-w-2xl mx-auto rounded-2xl overflow-hidden border-2 border-border shadow-2xl">
-              <img 
-                src={generatedImage} 
-                alt="Generated professional image" 
+              <img
+                src={generatedImage}
+                alt="Generated professional image"
                 className="w-full h-full object-cover"
               />
               <div className="absolute top-4 right-4">

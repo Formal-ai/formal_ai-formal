@@ -8,6 +8,7 @@ import { Sparkles, Camera, Users, ImageIcon } from "lucide-react";
 import StudioLayout from "@/components/StudioLayout";
 import { GenderMode } from "@/data/studioOptions";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadImage } from "@/utils/upload";
 
 interface StudioPageLayoutProps {
   title: string;
@@ -105,7 +106,13 @@ const StudioPageLayout = ({ title, subtitle, studioType, children }: StudioPageL
         return;
       }
 
-      // 2. Prepare Constraints
+      // 2. Storage Flow: Upload base64 to storage first
+      let finalImageUrl = generatedImage;
+      if (generatedImage.startsWith('data:')) {
+        finalImageUrl = await uploadImage(generatedImage);
+      }
+
+      // 3. Prepare Constraints
       // Filter out empty/None values
       const constraints = Object.entries(selections).reduce((acc, [key, value]) => {
         if (value && value !== "None") {
@@ -114,12 +121,12 @@ const StudioPageLayout = ({ title, subtitle, studioType, children }: StudioPageL
         return acc;
       }, {} as Record<string, string>);
 
-      // 3. Call Backend
+      // 4. Call Backend
       const { data, error } = await supabase.functions.invoke('generate-ai', {
         body: {
           type: studioType.toLowerCase(),
           userId: session.user.id,
-          image: generatedImage, // Sending Base64 (Caution: Size limit)
+          imageUrl: finalImageUrl, // Sending Base64 (Caution: Size limit)
           constraints: {
             ...constraints,
             genderMode // Include gender mode in constraints
@@ -139,20 +146,41 @@ const StudioPageLayout = ({ title, subtitle, studioType, children }: StudioPageL
       console.log("Generation Success:", data);
 
       toast({
-        title: "Generation Complete",
-        description: "Your image has been processed successfully.",
+        title: "Analysis Complete",
+        description: data.quality_report
+          ? `Generated in ${data.quality_report.resolution} with ${data.quality_report.lighting} lighting.`
+          : data.message || "Your image has been processed successfully.",
       });
 
-      // If we got a real image result (if we were using image model), we'd update it here.
-      // setGeneratedImage(data.result); 
+      // Update the UI with the processed result from the backend
+      if (data.result) {
+        setGeneratedImage(data.result);
+      }
+
+      // Show the generated description/analysis in the UI
+      if (data.description) {
+        toast({
+          title: "AI Stylist Insights",
+          description: data.description.slice(0, 100) + "...",
+        });
+      }
 
     } catch (error: any) {
       console.error("Generation failed:", error);
-      toast({
-        title: "Generation Failed",
-        description: error.message || "Something went wrong. Please try again.",
-        variant: "destructive"
-      });
+
+      if (error.message?.includes("Limit Reached") || error.status === 403) {
+        toast({
+          title: "Limit Reached",
+          description: "You've used your 2 free weekly images. Upgrade to Plus for more.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Generation Failed",
+          description: error.message || "Something went wrong. Please try again.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -382,12 +410,12 @@ const StudioPageLayout = ({ title, subtitle, studioType, children }: StudioPageL
                     {isLoading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
-                        Generating...
+                        Processing...
                       </>
                     ) : (
                       <>
                         <Sparkles className="w-4 h-4 mr-2" />
-                        Generate Look
+                        Analyze & Generate
                       </>
                     )}
                   </Button>

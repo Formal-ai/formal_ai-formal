@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Sparkles, Camera, Wand2, ImageIcon } from "lucide-react";
 import StudioLayout from "@/components/StudioLayout";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadImage } from "@/utils/upload";
 
 type StudioStep = "upload" | "customize";
 
@@ -97,13 +98,25 @@ const PromptYourselfStudio = () => {
         return;
       }
 
-      // 2. Call Backend
+      // 2. Upload to Storage (Storage Integration)
+      // Check if it's already a URL (e.g. from history) or base64
+      let storageUrl = generatedImage;
+      if (generatedImage.startsWith("data:")) {
+        try {
+          storageUrl = await uploadImage(generatedImage);
+        } catch (uploadError: any) {
+          console.error("Upload failed:", uploadError);
+          throw new Error(uploadError.message || "Failed to upload image.");
+        }
+      }
+
+      // 3. Call Backend with URL
       const { data, error } = await supabase.functions.invoke('generate-ai', {
         body: {
           type: 'magic',
           userId: session.user.id,
-          image: generatedImage,
-          prompt: customPrompt // Passing 'prompt' for magic type
+          imageUrl: storageUrl, // Use URL instead of base64
+          prompt: customPrompt
         }
       });
 
@@ -121,7 +134,9 @@ const PromptYourselfStudio = () => {
         description: "Your custom styling has been applied.",
       });
 
-      // setGeneratedImage(data.result);
+      if (data.result) {
+        setGeneratedImage(data.result);
+      }
 
     } catch (error: any) {
       console.error("Magic generation failed:", error);

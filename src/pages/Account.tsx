@@ -6,6 +6,7 @@ import { User, Mail, Calendar, Shield, CreditCard, Zap, Settings as SettingsIcon
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 const Account = () => {
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ const Account = () => {
                     .single();
 
                 setProfile({
-                    ...data,
+                    ...(data as any),
                     email: session.user.email
                 });
             }
@@ -99,7 +100,7 @@ const Account = () => {
                                     </div>
                                     <div>
                                         <p className="font-bold text-lg">Plus Plan</p>
-                                        <p className="text-sm text-muted-foreground">Renewal date: April 15, 2026</p>
+                                        <p className="text-sm text-muted-foreground">Renewal date: {profile?.created_at ? format(new Date(new Date(profile.created_at).setFullYear(new Date().getFullYear() + 1)), 'MMMM d, yyyy') : "Next Cycle"}</p>
                                     </div>
                                 </div>
                                 <Button onClick={() => navigate("/pricing")} className="rounded-full px-6 bg-primary text-primary-foreground font-bold">Manage</Button>
@@ -108,9 +109,9 @@ const Account = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 rounded-2xl bg-black/5 space-y-1">
                                     <p className="text-xs font-bold text-muted-foreground uppercase opacity-70">Monthly Credits</p>
-                                    <p className="text-2xl font-bold tabular-nums">{profile?.credits || 500}<span className="text-lg opacity-40 ml-1">/ 500</span></p>
+                                    <p className="text-2xl font-bold tabular-nums">{profile?.credits || 0}<span className="text-lg opacity-40 ml-1">/ 1000</span></p>
                                     <div className="w-full h-1.5 bg-black/10 rounded-full mt-2 overflow-hidden">
-                                        <div className="bg-primary h-full w-[85%]" />
+                                        <div className="bg-primary h-full w-[15%]" />
                                     </div>
                                 </div>
                                 <div className="p-4 rounded-2xl bg-black/5 space-y-1">
@@ -136,7 +137,7 @@ const Account = () => {
                                         <History className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                                         <span className="text-sm font-medium">Render History</span>
                                     </div>
-                                    <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">124</span>
+                                    <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">Active</span>
                                 </div>
                                 <div className="flex items-center justify-between group cursor-pointer" onClick={() => navigate("/history")}>
                                     <div className="flex items-center gap-3">
@@ -150,7 +151,7 @@ const Account = () => {
                                         <Calendar className="w-5 h-5 text-muted-foreground" />
                                         <span className="text-sm font-medium">Member Since</span>
                                     </div>
-                                    <span className="text-xs font-bold text-muted-foreground">March 2024</span>
+                                    <span className="text-xs font-bold text-muted-foreground">{profile?.created_at ? format(new Date(profile.created_at), 'MMMM yyyy') : "2024"}</span>
                                 </div>
                             </div>
 

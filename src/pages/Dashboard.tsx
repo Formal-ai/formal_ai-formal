@@ -39,7 +39,8 @@ const Dashboard = () => {
         totalGenerations: 0,
         savedGenerations: 0,
         monthlyGenerations: 0,
-        credits: 0
+        credits: 0,
+        weeklyGenerations: 0
     });
     const [recentCreations, setRecentCreations] = useState<any[]>([]);
     const [chartData, setChartData] = useState<{ name: string, generations: number }[]>([]);
@@ -75,12 +76,15 @@ const Dashboard = () => {
                 const total = generations.length;
                 const saved = generations.filter(g => g.is_saved).length;
                 const monthly = generations.filter(g => new Date(g.created_at) >= monthStart).length;
+                const oneWeekAgo = subDays(now, 7);
+                const weekly = generations.filter(g => new Date(g.created_at) >= oneWeekAgo).length;
 
                 setAnalytics({
                     totalGenerations: total,
                     savedGenerations: saved,
                     monthlyGenerations: monthly,
-                    credits: profile?.credits || 0
+                    credits: profile?.credits || 0,
+                    weeklyGenerations: weekly
                 });
 
                 // Recent 4 creations
@@ -194,9 +198,11 @@ const Dashboard = () => {
                             </div>
                             <div className="space-y-1">
                                 <span className="text-4xl font-bold tracking-tighter">
-                                    {analytics.credits}
+                                    {analytics.credits > 0 ? analytics.credits : Math.max(0, 2 - analytics.weeklyGenerations)}
                                 </span>
-                                <p className="text-sm font-medium text-muted-foreground font-sans">Credits Remaining</p>
+                                <p className="text-sm font-medium text-muted-foreground font-sans">
+                                    {analytics.credits > 0 ? "Credits Remaining" : "Free Weekly Images Left"}
+                                </p>
                             </div>
                         </CardContent>
                     </Card>
