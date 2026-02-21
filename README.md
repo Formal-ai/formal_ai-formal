@@ -49,6 +49,36 @@ npm install
 npm run dev
 ```
 
+## Key Features
+
+- **Multi-Studio Pipeline**: Specialized studios for Portraits, Hair, Accessories, and Backgrounds.
+- **Waitlist & Challenge**: Integrated waitlist system with an AI-identity challenge to engage early adopters.
+- **Premium Aesthetics**: iOS-glass design system with liquid-glass sections and smooth animations.
+- **Privacy & Compliance**: Built-in Cookie Consent, Terms of Service, and Privacy Policy systems.
+
+## Deployment & Development
+
+We use a `Makefile` to streamline common tasks:
+
+```sh
+make dev      # Start development server
+make build    # Build production application
+make preview  # Preview production build locally
+make lint     # Run linter
+make clean    # Remove build artifacts
+```
+
+### Environment Setup
+
+Ensure you have a `.env` file with the following keys:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `VITE_LAUNCH_MODE` (Set to "waitlist" or "live")
+
+## Database Setup
+
+The core database schema is defined in `supabase/schema.sql`. For the waitlist functionality, ensure the RLS policies allow anonymous inserts and updates (for challenge results).
+
 ## Deployment
 
 Build the application for production:

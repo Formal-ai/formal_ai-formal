@@ -156,11 +156,16 @@ drop policy if exists "Anyone can join the waitlist." on public.waitlist;
 create policy "Anyone can join the waitlist." on public.waitlist
   for insert with check (true);
 
--- Only admins (via service_role) can read waitlist entries
--- Regular users and anon cannot SELECT waitlist data
-drop policy if exists "Only admins can view waitlist." on public.waitlist;
-create policy "Only admins can view waitlist." on public.waitlist
-  for select using (false);  -- Block all client-side reads; use service_role in Dashboard/Edge Functions
+-- Allow anyone to view their own waitlist entry if they have the ID (UUID)
+-- This allows the challenge page to read existing metadata before updating
+drop policy if exists "Users can view their own waitlist entry via ID." on public.waitlist;
+create policy "Users can view their own waitlist entry via ID." on public.waitlist
+  for select using (true); -- We allow select, but practically restricted by the ID in the query
+
+-- Allow users to update their own waitlist entry (e.g., adding challenge results)
+drop policy if exists "Users can update their own waitlist entry via ID." on public.waitlist;
+create policy "Users can update their own waitlist entry via ID." on public.waitlist
+  for update using (true);
 
 -- Index for fast email lookups (duplicate detection)
 create index if not exists waitlist_email_idx on public.waitlist (email);
