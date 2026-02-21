@@ -349,13 +349,14 @@ const Waitlist = () => {
             if (data) setWaitlistId((data as any).id);
             setIsSubmitted(true);
             toast.success("Your spot has been secured.");
-        } catch (error: any) {
-            console.error(error);
-            if (error.code === "23505" || error.message?.includes("duplicate key")) {
+        } catch (error) {
+            const err = error as { code?: string; message?: string };
+            console.error(err);
+            if (err.code === "23505" || err.message?.includes("duplicate key")) {
                 toast.info("You are already on the waitlist! We'll be in touch.");
                 setIsSubmitted(true);
             } else {
-                toast.error(error.message || "Failed to join waitlist. Please try again.");
+                toast.error(err.message || "Failed to join waitlist. Please try again.");
             }
         } finally {
             setIsSubmitting(false);

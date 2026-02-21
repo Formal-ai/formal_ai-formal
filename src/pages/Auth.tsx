@@ -84,10 +84,11 @@ const Auth = () => {
       if (error) throw error;
       setResetSent(true);
       toast.success("Password reset link sent! Check your email.");
-    } catch (error: any) {
-      console.error("Reset error:", error);
-      setError(error.message || "An error occurred while sending reset email.");
-      toast.error(error.message || "An error occurred.");
+    } catch (error) {
+      const err = error as Error;
+      console.error("Reset error:", err);
+      setError(err.message || "An error occurred while sending reset email.");
+      toast.error(err.message || "An error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -139,17 +140,18 @@ const Auth = () => {
         const redirectTo = searchParams.get("redirectTo") || "/dashboard";
         navigate(redirectTo);
       }
-    } catch (error: any) {
-      console.error("Auth error:", error);
+    } catch (error) {
+      const err = error as Error;
+      console.error("Auth error:", err);
       let errorMessage = "An error occurred during authentication";
 
-      if (error.message.includes("Invalid login credentials")) {
+      if (err.message.includes("Invalid login credentials")) {
         errorMessage = "Invalid email or password. Please try again.";
-      } else if (error.message.includes("User already registered")) {
+      } else if (err.message.includes("User already registered")) {
         errorMessage = "This email is already registered. Please sign in instead.";
-      } else if (error.message.includes("Password should be at least")) {
+      } else if (err.message.includes("Password should be at least")) {
         errorMessage = "Password does not meet safety requirements.";
-      } else if (error.message.includes("Email not confirmed")) {
+      } else if (err.message.includes("Email not confirmed")) {
         errorMessage = "Please verify your email address before logging in.";
       }
 
@@ -174,8 +176,9 @@ const Auth = () => {
       if (error) throw error;
       toast.success("Verification email resent!");
       setResendCountdown(60);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to resend verification email.");
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message || "Failed to resend verification email.");
     } finally {
       setIsLoading(false);
     }
@@ -386,8 +389,9 @@ const Auth = () => {
                       },
                     });
                     if (error) throw error;
-                  } catch (error: any) {
-                    toast.error(error.message || "An error occurred with Google Sign In");
+                  } catch (error) {
+                    const err = error as Error;
+                    toast.error(err.message || "An error occurred with Google Sign In");
                   }
                 }}
               >
