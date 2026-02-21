@@ -19,6 +19,13 @@ import {
   Image as ImageIcon,
   Upload
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast as sonnerToast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadImage } from "@/utils/upload";

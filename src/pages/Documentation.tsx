@@ -52,18 +52,18 @@ const Documentation = () => {
                             </p>
                             <div className="bg-muted p-4 rounded-lg font-mono text-sm">
                 // Example API integration code would go here
-                                console.log("Formal.AI initialized");
+                            // M8 FIX: Removed console.log for production
                             </div>
                         </section>
 
                         <section className="space-y-6">
                             <h2 className="text-2xl font-bold">Core Concepts</h2>
                             <div className="grid md:grid-cols-2 gap-6">
-                                <div className="p-6 rounded-xl bg-card border border-border">
+                                <div className="p-6 rounded-[2.5rem] bg-card border border-border shadow-md">
                                     <h3 className="font-semibold mb-2">Studios</h3>
                                     <p className="text-sm text-muted-foreground">Diverse editing suites for specific needs like hair, background, or accessories.</p>
                                 </div>
-                                <div className="p-6 rounded-xl bg-card border border-border">
+                                <div className="p-6 rounded-[2.5rem] bg-card border border-border shadow-md">
                                     <h3 className="font-semibold mb-2">Generations</h3>
                                     <p className="text-sm text-muted-foreground">AI-created variations of your uploaded photos, preserving your identity.</p>
                                 </div>

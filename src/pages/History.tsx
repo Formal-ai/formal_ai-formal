@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Download, Calendar } from "lucide-react";
 import EditorLayout from "@/components/EditorLayout";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 interface Generation {
   id: string;
@@ -25,14 +26,17 @@ const History = () => {
 
   const fetchGenerations = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      // M6 FIX: Use getUser() for server-verified auth
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
+      // H5 FIX: Limit query to prevent large payload
       const { data, error } = await supabase
         .from('generations')
         .select('*')
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false });
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(100);
 
       if (error) throw error;
       setGenerations(data || []);

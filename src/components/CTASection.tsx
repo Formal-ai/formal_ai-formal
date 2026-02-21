@@ -1,6 +1,9 @@
 import { useRef, useState } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { DottedSurface } from "@/components/ui/dotted-surface";
+import { cn } from "@/lib/utils";
 
 const CTASection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -25,12 +28,11 @@ const CTASection = () => {
         '--mouse-y': `${mousePosition.y}px`,
       } as React.CSSProperties}
     >
-      <div className="relative rounded-[2.5rem] overflow-hidden ios-glass-hero p-12 md:p-16 text-center">
-        {/* Animated background */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/30 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl animate-pulse animation-delay-100" />
-        </div>
+      <div className="relative rounded-[3.5rem] overflow-hidden ios-glass-hero p-12 md:p-16 text-center border border-white/10">
+        {/* New Animated Dotted Surface Background */}
+        <DottedSurface className="opacity-40" />
+
+        {/* Existing Cursor Light Effect (handled by liquid-glass-section class) */}
 
         <div className="relative z-10 max-w-3xl mx-auto space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 animate-scale-in">
@@ -38,7 +40,7 @@ const CTASection = () => {
             <span className="text-sm font-medium">Ready to Get Started?</span>
           </div>
 
-          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight animate-slide-up">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight animate-slide-up font-serif">
             Transform Your Professional Image Today
           </h2>
 
@@ -47,11 +49,10 @@ const CTASection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-scale-in stagger-2">
-            <Link to="/dashboard" className="group">
-              <button className="ios-glass-button px-8 py-4 rounded-2xl text-lg font-semibold flex items-center gap-3 hover:scale-105 transition-all duration-300">
-                Get Started Free
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform duration-300" />
-              </button>
+            <Link to="/waitlist">
+              <Button className="ios-glass-button px-8 py-6 text-lg rounded-full hover:scale-105 transition-all duration-300 shadow-2xl">
+                Join The Waitlist
+              </Button>
             </Link>
             <p className="text-sm text-muted-foreground">
               No credit card required • 5-minute setup
@@ -64,3 +65,4 @@ const CTASection = () => {
 };
 
 export default CTASection;
+

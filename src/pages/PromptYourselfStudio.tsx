@@ -127,7 +127,7 @@ const PromptYourselfStudio = () => {
 
       if (data.error) throw new Error(data.error);
 
-      console.log("Generation Success:", data);
+      // M8 FIX: Removed console.log for production
 
       toast({
         title: "Magic Complete",

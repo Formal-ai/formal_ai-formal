@@ -47,28 +47,29 @@ const Settings = () => {
 
   const fetchProfile = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      // M6 FIX: Use getUser() for server-verified auth
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('profiles')
         .select('*')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .single();
 
       if (error) throw error;
       if (data) {
         setProfile({
-          full_name: data.full_name || "",
-          email: data.email || "",
-          theme: data.theme || "dark",
-          email_notifications: data.email_notifications !== false,
-          generation_alerts: data.generation_alerts !== false,
-          marketing_updates: !!data.marketing_updates,
+          full_name: (data as any).full_name || "",
+          email: (data as any).email || "",
+          theme: (data as any).theme || "dark",
+          email_notifications: (data as any).email_notifications !== false,
+          generation_alerts: (data as any).generation_alerts !== false,
+          marketing_updates: !!(data as any).marketing_updates,
         });
 
         // Sync local theme with stored preference
-        if (data.theme === 'light') {
+        if ((data as any).theme === 'light') {
           document.documentElement.classList.remove('dark');
         } else {
           document.documentElement.classList.add('dark');
@@ -81,16 +82,28 @@ const Settings = () => {
     }
   };
 
+  // H1 FIX: Only allow updating safe fields (never credits, is_admin)
+  const SAFE_UPDATE_FIELDS = ['full_name', 'avatar_url', 'theme', 'email_notifications', 'generation_alerts', 'marketing_updates'] as const;
+
   const handleUpdateProfile = async (updates: Partial<Profile>) => {
     setSaving(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      // M6 FIX: Use getUser() for server-verified auth
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-      const { error } = await supabase
+      // Strip any sensitive fields
+      const safeUpdates: Record<string, any> = {};
+      for (const key of Object.keys(updates)) {
+        if (SAFE_UPDATE_FIELDS.includes(key as any)) {
+          safeUpdates[key] = (updates as any)[key];
+        }
+      }
+
+      const { error } = await (supabase as any)
         .from('profiles')
-        .update(updates)
-        .eq('id', session.user.id);
+        .update(safeUpdates)
+        .eq('id', user.id);
 
       if (error) throw error;
 
@@ -273,14 +286,16 @@ const Settings = () => {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-lg">Pro Plan</span>
-                    <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Active</span>
+                    <span className="font-semibold text-lg">Free Plan</span>
+                    <span className="bg-muted text-muted-foreground text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Current</span>
                   </div>
-                  <p className="text-sm text-muted-foreground flex items-center gap-1">
-                    Next billing date: <span className="text-foreground font-medium">Jan 28, 2026</span>
+                  <p className="text-sm text-muted-foreground">
+                    Subscription plans coming soon. Stay tuned for Pro features.
                   </p>
                 </div>
-                <Button variant="outline" className="rounded-full">Manage Subscription</Button>
+                <Button variant="outline" className="rounded-full" disabled>
+                  Coming Soon
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -299,14 +314,17 @@ const Settings = () => {
                   <Label className="text-base font-semibold">Two-Factor Authentication</Label>
                   <p className="text-sm text-muted-foreground">Add an extra layer of security to your account.</p>
                 </div>
-                <Button variant="outline" size="sm" className="rounded-full">Setup 2FA</Button>
+                <Button variant="outline" size="sm" className="rounded-full" disabled>Coming Soon</Button>
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-base font-semibold">Active Sessions</Label>
-                  <p className="text-sm text-muted-foreground">You are currently logged in on 2 devices.</p>
+                  <Label className="text-base font-semibold">Password</Label>
+                  <p className="text-sm text-muted-foreground">Change your password via the password reset flow.</p>
                 </div>
-                <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/5">Revoke All</Button>
+                <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/5" onClick={() => {
+                  supabase.auth.resetPasswordForEmail(profile?.email || '');
+                  toast({ title: 'Password Reset', description: 'Check your email for a password reset link.' });
+                }}>Reset Password</Button>
               </div>
             </CardContent>
           </Card>

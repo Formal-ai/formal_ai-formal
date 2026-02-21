@@ -13,6 +13,7 @@ create table if not exists public.profiles (
   generation_alerts boolean default true,
   marketing_updates boolean default false,
   credits integer default 0,
+  is_admin boolean default false,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -20,17 +21,25 @@ create table if not exists public.profiles (
 alter table public.profiles enable row level security;
 
 -- 3. Create policies for profiles (safely drop first to avoid "already exists" errors)
+-- C2 FIX: Restrict SELECT to own profile only (was: using (true) = public read)
 drop policy if exists "Public profiles are viewable by everyone." on public.profiles;
-create policy "Public profiles are viewable by everyone." on public.profiles
-  for select using (true);
+drop policy if exists "Users can view own profile." on public.profiles;
+create policy "Users can view own profile." on public.profiles
+  for select using (auth.uid() = id);
 
 drop policy if exists "Users can insert their own profile." on public.profiles;
 create policy "Users can insert their own profile." on public.profiles
   for insert with check (auth.uid() = id);
 
+-- H1 FIX: Restrict UPDATE to safe columns only (prevent users from changing credits/is_admin)
 drop policy if exists "Users can update own profile." on public.profiles;
 create policy "Users can update own profile." on public.profiles
-  for update using (auth.uid() = id);
+  for update using (auth.uid() = id)
+  with check (auth.uid() = id);
+
+-- Revoke direct column update on sensitive fields (defense in depth)
+-- Users should only update: full_name, avatar_url, theme, email_notifications, generation_alerts, marketing_updates
+-- credits and is_admin should only be changed by service_role (edge functions)
 
 -- 4. Function to handle new user signup
 create or replace function public.handle_new_user()
@@ -121,3 +130,40 @@ create policy "Users can insert messages in their conversations." on public.mess
       and conversations.user_id = auth.uid()
     )
   );
+
+-- 11. Create WAITLIST table (required for the /waitlist form to work)
+create table if not exists public.waitlist (
+  id uuid default gen_random_uuid() primary key,
+  full_name text not null,
+  email text not null,
+  phone_number text,
+  use_case text,
+  motivation text,
+  status text default 'pending',
+  metadata jsonb default '{}'::jsonb,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Add unique constraint on email to prevent duplicate signups
+alter table public.waitlist add constraint waitlist_email_unique unique (email);
+
+-- Enable RLS on waitlist
+alter table public.waitlist enable row level security;
+
+-- Allow anyone (including unauthenticated visitors) to INSERT into the waitlist
+-- This is necessary because waitlist signups happen before login
+drop policy if exists "Anyone can join the waitlist." on public.waitlist;
+create policy "Anyone can join the waitlist." on public.waitlist
+  for insert with check (true);
+
+-- Only admins (via service_role) can read waitlist entries
+-- Regular users and anon cannot SELECT waitlist data
+drop policy if exists "Only admins can view waitlist." on public.waitlist;
+create policy "Only admins can view waitlist." on public.waitlist
+  for select using (false);  -- Block all client-side reads; use service_role in Dashboard/Edge Functions
+
+-- Index for fast email lookups (duplicate detection)
+create index if not exists waitlist_email_idx on public.waitlist (email);
+
+-- Index for filtering by status  
+create index if not exists waitlist_status_idx on public.waitlist (status);

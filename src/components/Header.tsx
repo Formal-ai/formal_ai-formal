@@ -3,15 +3,10 @@ import { Menu, X, Moon, Sun, ChevronDown, LogOut } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import formalAiLogo from "@/assets/formal-ai-logo.png";
+
+const LAUNCH_MODE = import.meta.env.VITE_LAUNCH_MODE || "live";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -139,82 +134,94 @@ const Header = () => {
               Home
             </Link>
 
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="glass-nav-item rounded-full px-4 py-2 bg-transparent hover:bg-accent/50 data-[state=open]:bg-accent/50">
-                    Studios
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid w-[240px] gap-1 p-2 bg-background/95 backdrop-blur-xl border border-border shadow-xl rounded-lg">
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to="/portrait-studio"
-                            className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          >
-                            <div className="text-sm font-medium">Portrait Studio</div>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to="/hair-studio"
-                            className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          >
-                            <div className="text-sm font-medium">Hair Studio</div>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to="/accessories-studio"
-                            className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          >
-                            <div className="text-sm font-medium">Accessories Studio</div>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to="/background-studio"
-                            className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          >
-                            <div className="text-sm font-medium">Background Studio</div>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to="/prompt-yourself-studio"
-                            className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          >
-                            <div className="text-sm font-medium">Prompt Yourself Studio</div>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+            {LAUNCH_MODE === "waitlist" ? (
+              <Link
+                to="/waitlist"
+                className={`glass-nav-item rounded-full px-4 py-2 transition-all nav-underline-effect ${location.pathname === "/waitlist" ? "active" : ""}`}
+              >
+                Waitlist
+              </Link>
+            ) : (
+              <>
+                <NavigationMenu>
+                  <NavigationMenuList>
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger className="glass-nav-item rounded-full px-4 py-2 bg-transparent hover:bg-accent/50 data-[state=open]:bg-accent/50">
+                        Studios
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <ul className="grid w-[240px] gap-1 p-2 bg-background/95 backdrop-blur-xl border border-border shadow-xl rounded-lg">
+                          <li>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                to="/portrait-studio"
+                                className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                              >
+                                <div className="text-sm font-medium">Portrait Studio</div>
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                          <li>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                to="/hair-studio"
+                                className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                              >
+                                <div className="text-sm font-medium">Hair Studio</div>
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                          <li>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                to="/accessories-studio"
+                                className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                              >
+                                <div className="text-sm font-medium">Accessories Studio</div>
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                          <li>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                to="/background-studio"
+                                className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                              >
+                                <div className="text-sm font-medium">Background Studio</div>
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                          <li>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                to="/prompt-yourself-studio"
+                                className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                              >
+                                <div className="text-sm font-medium">Prompt Yourself Studio</div>
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                        </ul>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                  </NavigationMenuList>
+                </NavigationMenu>
 
-            <Link
-              to="/pricing"
-              className={`glass-nav-item rounded-full px-4 py-2 transition-all nav-underline-effect ${location.pathname === "/pricing" ? "active" : ""}`}
-            >
-              Pricing
-            </Link>
-            <Link
-              to="/contacts"
-              className={`glass-nav-item rounded-full px-4 py-2 transition-all nav-underline-effect ${location.pathname === "/contacts" ? "active" : ""}`}
-            >
-              Contacts
-            </Link>
+                <Link
+                  to="/pricing"
+                  className={`glass-nav-item rounded-full px-4 py-2 transition-all nav-underline-effect ${location.pathname === "/pricing" ? "active" : ""}`}
+                >
+                  Pricing
+                </Link>
+                <Link
+                  to="/contacts"
+                  className={`glass-nav-item rounded-full px-4 py-2 transition-all nav-underline-effect ${location.pathname === "/contacts" ? "active" : ""}`}
+                >
+                  Contacts
+                </Link>
+              </>
+            )}
+
             <Link
               to="/about"
               className={`glass-nav-item rounded-full px-4 py-2 transition-all nav-underline-effect ${location.pathname === "/about" ? "active" : ""}`}
@@ -237,7 +244,7 @@ const Header = () => {
               )}
             </button>
 
-            {user ? (
+            {user && LAUNCH_MODE !== "waitlist" ? (
               <div className="flex items-center gap-4">
                 <Link to="/dashboard">
                   <Button className="hidden md:flex bg-primary/90 backdrop-blur-sm hover:bg-primary text-primary-foreground rounded-full px-6 py-2 hover:scale-105 transition-all shadow-lg">
@@ -252,6 +259,12 @@ const Header = () => {
                   <LogOut className="h-5 w-5" />
                 </button>
               </div>
+            ) : LAUNCH_MODE === "waitlist" ? (
+              <Link to="/waitlist" className="hidden md:flex">
+                <Button className="ios-glass-button rounded-full px-6 py-2 hover:scale-105 transition-all shadow-lg">
+                  Join The Waitlist
+                </Button>
+              </Link>
             ) : (
               <div className="flex items-center gap-2">
                 <Link to="/auth">
@@ -285,36 +298,54 @@ const Header = () => {
               <Link to="/" className="text-sm font-medium hover:text-accent transition-colors">
                 Home
               </Link>
-              <div className="text-sm font-medium text-muted-foreground px-2">Studios</div>
-              <Link to="/portrait-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
-                Portrait Studio
-              </Link>
-              <Link to="/hair-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
-                Hair Studio
-              </Link>
-              <Link to="/accessories-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
-                Accessories Studio
-              </Link>
-              <Link to="/background-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
-                Background Studio
-              </Link>
-              <Link to="/prompt-yourself-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
-                Prompt Yourself Studio
-              </Link>
-              <Link to="/pricing" className="text-sm font-medium hover:text-accent transition-colors">
-                Pricing
-              </Link>
-              <Link to="/contacts" className="text-sm font-medium hover:text-accent transition-colors">
-                Contacts
-              </Link>
-              <Link to="/about" className="text-sm font-medium hover:text-accent transition-colors">
-                About
-              </Link>
-              <Link to="/dashboard" className="w-full">
-                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full w-full">
-                  Join Now
-                </Button>
-              </Link>
+              {LAUNCH_MODE === "waitlist" ? (
+                <>
+                  <Link to="/waitlist" className="text-sm font-medium hover:text-accent transition-colors">
+                    Waitlist
+                  </Link>
+                  <Link to="/about" className="text-sm font-medium hover:text-accent transition-colors">
+                    About
+                  </Link>
+                  <Link to="/waitlist" className="w-full">
+                    <Button className="ios-glass-button rounded-full w-full py-4 font-semibold">
+                      Join The Waitlist
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <div className="text-sm font-medium text-muted-foreground px-2">Studios</div>
+                  <Link to="/portrait-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
+                    Portrait Studio
+                  </Link>
+                  <Link to="/hair-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
+                    Hair Studio
+                  </Link>
+                  <Link to="/accessories-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
+                    Accessories Studio
+                  </Link>
+                  <Link to="/background-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
+                    Background Studio
+                  </Link>
+                  <Link to="/prompt-yourself-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
+                    Prompt Yourself Studio
+                  </Link>
+                  <Link to="/pricing" className="text-sm font-medium hover:text-accent transition-colors">
+                    Pricing
+                  </Link>
+                  <Link to="/contacts" className="text-sm font-medium hover:text-accent transition-colors">
+                    Contacts
+                  </Link>
+                  <Link to="/about" className="text-sm font-medium hover:text-accent transition-colors">
+                    About
+                  </Link>
+                  <Link to="/dashboard" className="w-full">
+                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full w-full">
+                      Join Now
+                    </Button>
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         )}

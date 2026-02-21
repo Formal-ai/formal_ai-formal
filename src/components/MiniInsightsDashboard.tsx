@@ -7,10 +7,10 @@ interface MiniInsightsDashboardProps {
   lastSentiment: string;
 }
 
-const MiniInsightsDashboard = ({ 
-  totalMessages, 
-  averageRelationshipScore, 
-  lastSentiment 
+const MiniInsightsDashboard = ({
+  totalMessages,
+  averageRelationshipScore,
+  lastSentiment
 }: MiniInsightsDashboardProps) => {
   const [displayTotal, setDisplayTotal] = useState(0);
   const [displayAverage, setDisplayAverage] = useState(0);
@@ -65,7 +65,7 @@ const MiniInsightsDashboard = ({
       <div className="text-center mb-6">
         <h3 className="text-xl font-bold text-muted-foreground">Quick Insights</h3>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
         {/* Total Messages */}
         <div className="ios-glass-card p-6 rounded-2xl hover:scale-105 transition-all duration-300 animate-scale-in">

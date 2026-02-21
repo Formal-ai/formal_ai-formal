@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const Terms = () => {
   return (
@@ -128,6 +129,7 @@ const Terms = () => {
           </section>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

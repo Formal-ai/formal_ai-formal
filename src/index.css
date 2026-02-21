@@ -88,7 +88,8 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 0 0% 10%;
+    color-scheme: dark;
+    --background: 0 0% 4%;
     --foreground: 36 44% 96%;
 
     --card: 0 0% 14%;
@@ -160,7 +161,11 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply min-h-screen bg-background text-foreground font-sans antialiased selection:bg-primary/20;
+    background-image:
+      radial-gradient(at 0% 0%, hsla(var(--primary) / 0.05) 0, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(var(--secondary) / 0.05) 0, transparent 50%);
+    background-attachment: fixed;
   }
 
   html {
@@ -581,18 +586,18 @@ All colors MUST be HSL.
 
   /* Page transitions */
   .page-transition {
-    animation: pageTransitionIn 0.4s ease-out;
+    animation: page-enter 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
-  @keyframes pageTransitionIn {
+  @keyframes page-enter {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: scale(0.99) translateY(10px);
     }
 
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: scale(1) translateY(0);
     }
   }
 
@@ -633,4 +638,332 @@ All colors MUST be HSL.
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary) / 0.5);
   }
+
+  /* ═══════════════════════════════════════════
+     Phone Input — Premium Styling
+     ═══════════════════════════════════════════ */
+
+  /* Outer container for the whole PhoneInput */
+  .PhoneInput {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Country selector button (flag + arrow) */
+  .PhoneInputCountry {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.375rem !important;
+    height: 3rem !important;
+    /* h-12 */
+    padding: 0 0.875rem !important;
+    border-radius: 0.75rem !important;
+    border: 2px solid hsl(var(--border)) !important;
+    background: hsl(var(--background)) !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    min-width: 5rem !important;
+  }
+
+  .dark .PhoneInputCountry {
+    background: hsl(0 0% 100% / 0.05) !important;
+    border-color: hsl(0 0% 100% / 0.15) !important;
+  }
+
+  .PhoneInputCountry:hover {
+    border-color: hsl(var(--primary) / 0.5) !important;
+    background: hsl(var(--accent) / 0.08) !important;
+  }
+
+  .dark .PhoneInputCountry:hover {
+    border-color: hsl(0 0% 100% / 0.35) !important;
+    background: hsl(0 0% 100% / 0.08) !important;
+  }
+
+  /* Hidden native select — sits on top so it's clickable */
+  .PhoneInputCountrySelect {
+    appearance: none !important;
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0 !important;
+    cursor: pointer !important;
+    z-index: 10 !important;
+    font-size: 1rem !important;
+  }
+
+  /* The phone number input field */
+  .PhoneInputInput {
+    flex: 1 !important;
+    height: 3rem !important;
+    padding: 0 0.875rem !important;
+    border-radius: 0.75rem !important;
+    border: 2px solid hsl(var(--border)) !important;
+    background: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+    font-size: 0.9375rem !important;
+    font-weight: 300 !important;
+    outline: none !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .dark .PhoneInputInput {
+    background: hsl(0 0% 100% / 0.05) !important;
+    border-color: hsl(0 0% 100% / 0.15) !important;
+    color: white !important;
+  }
+
+  .PhoneInputInput::placeholder {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+
+  .PhoneInputInput:focus {
+    border-color: hsl(var(--primary)) !important;
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.15) !important;
+  }
+
+  .dark .PhoneInputInput:focus {
+    border-color: hsl(0 0% 100% / 0.5) !important;
+    box-shadow: 0 0 0 2px hsl(0 0% 100% / 0.1) !important;
+  }
+
+  /* ─── Flag Icon ─── */
+  .PhoneInputCountryIcon {
+    width: 1.625rem !important;
+    /* 26px — nice and visible */
+    height: 1.25rem !important;
+    /* 20px */
+    border-radius: 3px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.08) !important;
+    flex-shrink: 0 !important;
+  }
+
+  .PhoneInputCountryIcon img,
+  .PhoneInputCountryIcon .PhoneInputCountryIconImg {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+  }
+
+  /* Make the flag SVG/emoji visible */
+  .PhoneInputCountryIcon--square,
+  .PhoneInputCountryIcon--border {
+    width: 1.625rem !important;
+    height: 1.25rem !important;
+    background-size: cover !important;
+  }
+
+  /* ─── Dropdown Arrow ─── */
+  .PhoneInputCountrySelectArrow {
+    width: 0 !important;
+    height: 0 !important;
+    margin-left: 0.25rem !important;
+    border-left: 4px solid transparent !important;
+    border-right: 4px solid transparent !important;
+    border-top: 5px solid hsl(var(--foreground) / 0.45) !important;
+    border-bottom: none !important;
+    transition: border-color 0.2s !important;
+    flex-shrink: 0 !important;
+  }
+
+  .dark .PhoneInputCountrySelectArrow {
+    border-top-color: hsl(0 0% 100% / 0.5) !important;
+  }
+
+  .PhoneInputCountry:hover .PhoneInputCountrySelectArrow {
+    border-top-color: hsl(var(--primary)) !important;
+  }
+
+  .dark .PhoneInputCountry:hover .PhoneInputCountrySelectArrow {
+    border-top-color: white !important;
+  }
+
+  /* ─── Native Select Options (when dropdown opens) ─── */
+  select.PhoneInputCountrySelect {
+    background: hsl(var(--card)) !important;
+    color: hsl(var(--foreground)) !important;
+    font-size: 0.9375rem !important;
+  }
+
+  .dark select.PhoneInputCountrySelect {
+    background: hsl(0 0% 12%) !important;
+    color: white !important;
+  }
+
+  select.PhoneInputCountrySelect option {
+    padding: 0.5rem 0.75rem !important;
+    background: white !important;
+    color: #111 !important;
+    font-size: 0.9375rem !important;
+  }
+
+  .dark select.PhoneInputCountrySelect option {
+    background: #1a1a1a !important;
+    color: #f0f0f0 !important;
+  }
+
+  /* ─── International Calling Code Text ─── */
+  .PhoneInputCountryCallingCode {
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  .dark .PhoneInputCountryCallingCode {
+    color: hsl(0 0% 100% / 0.8) !important;
+  }
+
+  /* --- Sophisticated Transitions & Animations --- */
+
+  /* Typing Effect Logic */
+  .typing-effect {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid transparent;
+    width: 0;
+    transition: width 0.1s ease-out;
+  }
+
+  .typing-effect.active {
+    width: 100%;
+    animation:
+      typing 2s steps(40, end) forwards,
+      blink-caret 0.75s step-end infinite;
+  }
+
+  @keyframes typing {
+    from {
+      width: 0
+    }
+
+    to {
+      width: 100%
+    }
+  }
+
+  @keyframes blink-caret {
+
+    from,
+    to {
+      border-color: transparent
+    }
+
+    50% {
+      border-color: hsl(var(--primary))
+    }
+  }
+
+  /* Reveal on Scroll Logic */
+  .reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+    transition:
+      opacity 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+      transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: opacity, transform;
+  }
+
+  .reveal-on-scroll.revealed {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* Staggered Delay Utilities */
+  .stagger-delay-1 {
+    transition-delay: 0.15s;
+  }
+
+  .stagger-delay-2 {
+    transition-delay: 0.3s;
+  }
+
+  .stagger-delay-3 {
+    transition-delay: 0.45s;
+  }
+
+  .stagger-delay-4 {
+    transition-delay: 0.6s;
+  }
+
+  /* Accessibility: Respect Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+
+    *,
+    ::before,
+    ::after {
+      animation-delay: -1ms !important;
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      background-attachment: initial !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
+    }
+
+    .typing-effect {
+      width: auto !important;
+      border-right: none !important;
+      animation: none !important;
+    }
+
+    .reveal-on-scroll {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+
+
+    .page-transition {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+}
+
+/* --- Testimonials Redesign (Blue Image) --- */
+/* --- Testimonials Redesign (Dark Blue Pixel) --- */
+.blue-grid-bg {
+  background: radial-gradient(circle at top center, #080c18 0%, #010205 100%) !important;
+  position: relative;
+  overflow: hidden;
+  background-color: #010205 !important;
+  mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+}
+
+.blue-grid-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to right, rgba(59, 130, 246, 0.03) 2px, transparent 2px),
+    linear-gradient(to bottom, rgba(59, 130, 246, 0.03) 2px, transparent 2px);
+  background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 95%);
+  pointer-events: none;
+}
+
+.deep-sea-glass {
+  background: rgba(8, 12, 24, 0.45) !important;
+  backdrop-filter: blur(12px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6) !important;
+  border-radius: 48px !important;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1) !important;
+}
+
+.deep-sea-glass:hover {
+  transform: translateY(-4px) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
 }

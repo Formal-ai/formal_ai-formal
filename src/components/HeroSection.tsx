@@ -53,7 +53,7 @@ const HeroSection = () => {
     <section
       ref={sectionRef}
       onMouseMove={handleMouseMove}
-      className="relative rounded-[2.5rem] ios-glass-hero liquid-glass-section mb-12 animate-fade-in"
+      className="relative rounded-[3.5rem] ios-glass-hero liquid-glass-section mb-12 animate-fade-in overflow-hidden"
       style={{
         '--mouse-x': `${mousePosition.x}px`,
         '--mouse-y': `${mousePosition.y}px`,
@@ -113,9 +113,9 @@ const HeroSection = () => {
             </p>
           </div>
 
-          <Link to="/generate" className="animate-scale-in stagger-2">
-            <Button className="ios-glass-button px-8 py-6 text-lg rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg">
-              Generate New Look
+          <Link to="/waitlist" className="animate-scale-in stagger-2">
+            <Button className="ios-glass-button px-8 py-6 text-lg rounded-full hover:scale-105 transition-all duration-300 shadow-lg">
+              Join The Waitlist
             </Button>
           </Link>
         </div>

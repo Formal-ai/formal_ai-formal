@@ -49,25 +49,27 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchDashboardData = async () => {
             setLoading(true);
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session?.user) return;
+            // M6 FIX: Use getUser() for server-verified auth instead of getSession()
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
 
-            const userId = session.user.id;
-            setUserName(session.user.user_metadata?.first_name || "Professional");
+            const userId = user.id;
+            setUserName(user.user_metadata?.full_name || "Professional");
 
             // 1. Fetch Profile (Credits)
-            const { data: profile } = await supabase
+            const { data: profile } = await (supabase as any)
                 .from('profiles')
                 .select('credits')
                 .eq('id', userId)
                 .single();
 
-            // 2. Fetch All Generations
-            const { data: generations, error } = await supabase
+            // H5 FIX: Limit query to most recent 200 generations to prevent large payloads
+            const { data: generations } = await (supabase as any)
                 .from('generations')
                 .select('*')
                 .eq('user_id', userId)
-                .order('created_at', { ascending: false });
+                .order('created_at', { ascending: false })
+                .limit(200);
 
             if (generations) {
                 const now = new Date();
@@ -104,7 +106,7 @@ const Dashboard = () => {
                 // Process Style Stats
                 const styles = ['Portrait', 'Hair', 'Accessories', 'Background', 'Magic'];
                 const stats = styles.map((style, i) => {
-                    const count = generations.filter(g => (g.type || '').toLowerCase().includes(style.toLowerCase())).length;
+                    const count = generations.filter(g => ((g as any).type || '').toLowerCase().includes(style.toLowerCase())).length;
                     const colors = ['var(--primary)', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
                     return { name: `${style} Studio`, value: count, color: colors[i] };
                 }).filter(s => s.value > 0);
@@ -117,12 +119,13 @@ const Dashboard = () => {
                     { name: 'Custom Magic', value: 0, color: '#f59e0b' },
                 ]);
             } else {
-                // Zero state fallback
+                // H6 FIX: Include weeklyGenerations in fallback state
                 setAnalytics({
                     totalGenerations: 0,
                     savedGenerations: 0,
                     monthlyGenerations: 0,
-                    credits: profile?.credits || 0
+                    credits: profile?.credits || 0,
+                    weeklyGenerations: 0
                 });
                 setChartData(Array.from({ length: 7 }).map((_, i) => ({ name: format(subDays(now, 6 - i), 'EEE'), generations: 0 })));
                 setStyleStats([

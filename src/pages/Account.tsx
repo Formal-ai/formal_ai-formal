@@ -99,26 +99,24 @@ const Account = () => {
                                         <Zap className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <p className="font-bold text-lg">Plus Plan</p>
-                                        <p className="text-sm text-muted-foreground">Renewal date: {profile?.created_at ? format(new Date(new Date(profile.created_at).setFullYear(new Date().getFullYear() + 1)), 'MMMM d, yyyy') : "Next Cycle"}</p>
+                                        <p className="font-bold text-lg">Free Plan</p>
+                                        <p className="text-sm text-muted-foreground">Subscription plans coming soon</p>
                                     </div>
                                 </div>
-                                <Button onClick={() => navigate("/pricing")} className="rounded-full px-6 bg-primary text-primary-foreground font-bold">Manage</Button>
+                                <Button onClick={() => navigate("/pricing")} className="rounded-full px-6 bg-primary text-primary-foreground font-bold" disabled>Coming Soon</Button>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 rounded-2xl bg-black/5 space-y-1">
-                                    <p className="text-xs font-bold text-muted-foreground uppercase opacity-70">Monthly Credits</p>
-                                    <p className="text-2xl font-bold tabular-nums">{profile?.credits || 0}<span className="text-lg opacity-40 ml-1">/ 1000</span></p>
-                                    <div className="w-full h-1.5 bg-black/10 rounded-full mt-2 overflow-hidden">
-                                        <div className="bg-primary h-full w-[15%]" />
-                                    </div>
+                                    <p className="text-xs font-bold text-muted-foreground uppercase opacity-70">Available Credits</p>
+                                    <p className="text-2xl font-bold tabular-nums">{profile?.credits || 0}</p>
+                                    <p className="text-[10px] text-muted-foreground mt-2">Free tier: 2 images/week</p>
                                 </div>
                                 <div className="p-4 rounded-2xl bg-black/5 space-y-1">
-                                    <p className="text-xs font-bold text-muted-foreground uppercase opacity-70">Studio Unlocks</p>
-                                    <p className="text-2xl font-bold">Unlimited</p>
+                                    <p className="text-xs font-bold text-muted-foreground uppercase opacity-70">Studio Access</p>
+                                    <p className="text-2xl font-bold">All Studios</p>
                                     <p className="text-[10px] text-primary flex items-center gap-1 mt-2">
-                                        <Zap className="w-3 h-3" /> All studios active
+                                        <Zap className="w-3 h-3" /> 5 studios available
                                     </p>
                                 </div>
                             </div>

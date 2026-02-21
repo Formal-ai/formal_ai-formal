@@ -20,6 +20,10 @@ export type Database = {
           generation_alerts: boolean | null
           marketing_updates: boolean | null
           credits: number | null
+          is_admin: boolean | null
+          role: string | null
+          onboarding_complete: boolean | null
+          tier: string | null
           created_at: string
         }
         Insert: {
@@ -32,6 +36,10 @@ export type Database = {
           generation_alerts?: boolean | null
           marketing_updates?: boolean | null
           credits?: number | null
+          is_admin?: boolean | null
+          role?: string | null
+          onboarding_complete?: boolean | null
+          tier?: string | null
           created_at?: string
         }
         Update: {
@@ -44,6 +52,10 @@ export type Database = {
           generation_alerts?: boolean | null
           marketing_updates?: boolean | null
           credits?: number | null
+          is_admin?: boolean | null
+          role?: string | null
+          onboarding_complete?: boolean | null
+          tier?: string | null
           created_at?: string
         }
       }
@@ -76,6 +88,41 @@ export type Database = {
           result_text?: string | null
           type?: string
           is_saved?: boolean | null
+          created_at?: string
+        }
+      }
+      waitlist: {
+        Row: {
+          id: string
+          full_name: string
+          email: string
+          phone_number: string | null
+          use_case: string | null
+          motivation: string | null
+          status: string | null
+          metadata: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          full_name: string
+          email: string
+          phone_number?: string | null
+          use_case?: string | null
+          motivation?: string | null
+          status?: string | null
+          metadata?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          full_name?: string
+          email?: string
+          phone_number?: string | null
+          use_case?: string | null
+          motivation?: string | null
+          status?: string | null
+          metadata?: Json | null
           created_at?: string
         }
       }

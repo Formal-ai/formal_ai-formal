@@ -61,6 +61,11 @@ const Footer = () => {
                   Documentation
                 </Link>
               </li>
+              <li>
+                <Link to="/cookie-policy" className="text-muted-foreground hover:text-primary transition-colors">
+                  Cookie Policy
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -95,29 +100,54 @@ const Footer = () => {
           <div className="space-y-6">
             <h3 className="font-bold text-lg">Contact</h3>
             <div className="flex flex-col space-y-4">
-              <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-pink-600 transition-colors">
+              <a
+                href="https://www.instagram.com/formal.ai/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-muted-foreground hover:text-pink-600 transition-all duration-300 hover:translate-x-1"
+              >
                 <Instagram className="h-5 w-5" />
-                <span className="text-sm">Instagram</span>
+                <span className="text-sm font-medium">Instagram</span>
               </a>
-              <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-blue-600 transition-colors">
+              <a
+                href="https://www.facebook.com/profile.php?id=61563160822901"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-muted-foreground hover:text-blue-600 transition-all duration-300 hover:translate-x-1"
+              >
                 <Facebook className="h-5 w-5" />
-                <span className="text-sm">Facebook</span>
+                <span className="text-sm font-medium">Facebook</span>
               </a>
-              <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-black dark:hover:text-white transition-colors">
-                {/* Tiktok standard icon is not in Lucide, using text/placeholder or similar */}
-                <div className="h-5 w-5 flex items-center justify-center font-bold text-xs bg-current rounded-sm text-background">T</div>
-                <span className="text-sm">TikTok</span>
+              <a
+                href="https://www.tiktok.com/@formal.ai?lang=en"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-muted-foreground hover:text-black dark:hover:text-white transition-all duration-300 hover:translate-x-1"
+              >
+                <div className="h-5 w-5 flex items-center justify-center font-bold text-[10px] bg-foreground text-background rounded-full leading-none">T</div>
+                <span className="text-sm font-medium">TikTok</span>
               </a>
-              <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-blue-700 transition-colors">
+              <a
+                href="https://www.linkedin.com/company/formal-ai/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-muted-foreground hover:text-blue-700 transition-all duration-300 hover:translate-x-1"
+              >
                 <Linkedin className="h-5 w-5" />
-                <span className="text-sm">LinkedIn</span>
+                <span className="text-sm font-medium">LinkedIn</span>
               </a>
-              <a href="#" className="flex items-center gap-2 text-muted-foreground hover:text-black dark:hover:text-white transition-colors">
+              <a
+                href="https://x.com/Tapiwa_ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-muted-foreground hover:text-black dark:hover:text-white transition-all duration-300 hover:translate-x-1"
+              >
                 <Twitter className="h-5 w-5" />
-                <span className="text-sm">X (Twitter)</span>
+                <span className="text-sm font-medium">X (Twitter)</span>
               </a>
             </div>
           </div>
+
 
         </div>
 

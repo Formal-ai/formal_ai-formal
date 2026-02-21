@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
-import { Bell, Layers, TrendingUp } from "lucide-react";
+import { Camera, Ratio, Award } from "lucide-react";
 import { Link } from "react-router-dom";
+import { BackgroundStars } from "./ui/background-stars";
 
 const KeyBenefitsSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -14,23 +15,24 @@ const KeyBenefitsSection = () => {
       y: e.clientY - rect.top,
     });
   };
+
   const benefits = [
     {
-      icon: Bell,
-      title: "Photorealistic Virtual Styling",
-      description: "AI-powered image editing that preserves your identity while transforming your professional appearance.",
+      icon: Camera,
+      title: "Identity Preservation",
+      description: "Facial structure, expression, and defining features are never altered. You still look like yourself.",
       path: "/portrait-studio"
     },
     {
-      icon: Layers,
-      title: "Accessory & Style Editing",
-      description: "Easily modify ties, bows, watches, glasses, hair color and style without distortion—all naturally realistic.",
+      icon: Ratio,
+      title: "No Distortion Styling",
+      description: "Attire, accessories, and grooming are applied without warping proportions or artificial artifacts.",
       path: "/accessories-studio"
     },
     {
-      icon: TrendingUp,
-      title: "Professional Image Enhancement",
-      description: "Automatic lighting, color correction, and background replacement for business-ready images.",
+      icon: Award,
+      title: "Business-Ready Output",
+      description: "Images are calibrated for LinkedIn, CVs, and corporate use — not creative experimentation.",
       path: "/background-studio"
     }
   ];
@@ -39,46 +41,50 @@ const KeyBenefitsSection = () => {
     <section
       ref={sectionRef}
       onMouseMove={handleMouseMove}
-      className="py-16 md:py-24 animate-fade-in liquid-glass-section"
+      className="relative py-16 md:py-24 animate-fade-in liquid-glass-section overflow-hidden rounded-[3.5rem] mt-12 mb-12"
       style={{
         '--mouse-x': `${mousePosition.x}px`,
         '--mouse-y': `${mousePosition.y}px`,
       } as React.CSSProperties}
     >
-      <div className="text-center mb-12 md:mb-16">
-        <h2 className="text-3xl md:text-5xl font-bold mb-4 animate-slide-up">
-          Why Formal.AI?
-        </h2>
-        <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto animate-slide-up stagger-1">
-          Enterprise-grade AI styling for professionals who demand excellence
-        </p>
-      </div>
+      <BackgroundStars className="opacity-40" />
 
-      <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-        {benefits.map((benefit, index) => {
-          const Icon = benefit.icon;
-          return (
-            <Link
-              key={index}
-              to={benefit.path}
-              className="ios-glass-card p-8 text-center group hover:scale-105 transition-all duration-500 animate-scale-in flex flex-col items-center"
-              style={{ animationDelay: `${index * 150}ms` }}
-            >
-              <div className="relative inline-block mb-6">
-                <div className="absolute inset-0 bg-primary blur-2xl opacity-0 group-hover:opacity-50 transition-opacity duration-500 animate-pulse" />
-                <div className="relative p-5 rounded-2xl bg-primary/10 border border-primary/20 group-hover:border-primary/40 transition-colors duration-500">
-                  <Icon size={48} strokeWidth={1.5} className="text-primary" />
+      <div className="relative z-10 container mx-auto px-4">
+        <div className="text-center mb-12 md:mb-16 typing-effect-trigger">
+          <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
+            <span className="typing-effect">Built for professional credibility</span>
+          </h2>
+          <p className="text-muted-foreground text-lg md:text-2xl max-w-3xl mx-auto font-medium leading-relaxed reveal-on-scroll stagger-delay-1">
+            Formal.AI is designed for high-stakes professional contexts where accuracy and identity preservation matter.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 md:gap-8 hover:cursor-default">
+          {benefits.map((benefit, index) => {
+            const Icon = benefit.icon;
+            return (
+              <Link
+                key={index}
+                to={benefit.path}
+                className={`ios-glass-card p-8 text-center group hover:scale-105 reveal-on-scroll stagger-delay-${index + 1} flex flex-col items-center !rounded-[2.5rem]`}
+              >
+                <div className="relative inline-block mb-6">
+                  <div className="absolute inset-0 bg-primary blur-2xl opacity-0 group-hover:opacity-50 transition-opacity duration-500 animate-pulse" />
+                  <div className="relative p-5 rounded-2xl bg-primary/10 border border-primary/20 group-hover:border-primary/40 transition-colors duration-500">
+                    <Icon size={48} strokeWidth={1.5} className="text-primary" />
+                  </div>
                 </div>
-              </div>
 
-              <h3 className="text-xl font-semibold mb-3">{benefit.title}</h3>
-              <p className="text-muted-foreground leading-relaxed">{benefit.description}</p>
-            </Link>
-          );
-        })}
+                <h3 className="text-xl font-semibold mb-3">{benefit.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{benefit.description}</p>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
 };
 
 export default KeyBenefitsSection;
+

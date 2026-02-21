@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
+import { Link } from "react-router-dom";
 
 const About = () => {
   return (
@@ -100,14 +101,16 @@ const About = () => {
         <section className="text-center py-12 rounded-2xl bg-card">
           <h2 className="text-3xl font-bold mb-4">Join Our Community</h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Subscribe to receive our latest articles, insights, and inspiration directly in your inbox.
+            Secure your spot now and be the first to know when we launch our professional AI studios.
           </p>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8">
-            <Mail className="mr-2 h-4 w-4" />
-            Subscribe Now
-          </Button>
+          <Link to="/waitlist">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8">
+              Join The Waitlist
+            </Button>
+          </Link>
         </section>
       </main>
+      <Footer />
     </div>
   );
 };

@@ -1,14 +1,28 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+// C4 FIX: Restrict CORS to actual domain
+const ALLOWED_ORIGINS = [
+  'https://formal.ai',
+  'https://www.formal.ai',
+  'http://localhost:5173',
+  'http://localhost:8080',
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get('Origin') || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
+  };
+}
 
 async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3) {
   let lastError: Error | null = null;
-  
+
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       const response = await fetch(url, options);
@@ -16,12 +30,12 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
 
       if (!response.ok) {
         const errorMessage = result.error?.message || `API request failed with status ${response.status}`;
-        
+
         // Don't retry on client errors (4xx) except rate limits (429)
         if (response.status >= 400 && response.status < 500 && response.status !== 429) {
           throw new Error(errorMessage);
         }
-        
+
         // For 5xx or 429, retry with exponential backoff
         if (attempt < maxRetries - 1) {
           const delay = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
@@ -30,14 +44,14 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
           lastError = new Error(errorMessage);
           continue;
         }
-        
+
         throw new Error(errorMessage);
       }
 
       return result;
     } catch (error) {
       lastError = error instanceof Error ? error : new Error("Unknown error");
-      
+
       // If it's a network error and we have retries left, try again
       if (attempt < maxRetries - 1) {
         const delay = Math.pow(2, attempt) * 1000;
@@ -47,11 +61,13 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
       }
     }
   }
-  
+
   throw lastError || new Error("Failed after maximum retries");
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -119,9 +135,9 @@ Text to analyze:
 ${inputText}`;
 
     console.log('Calling Gemini API...');
-    
+
     const result = await fetchWithRetry(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: {
@@ -181,10 +197,10 @@ ${inputText}`;
   } catch (error) {
     console.error('Error in analyze-contact function:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    
+
     return new Response(
       JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } }
     );
   }
 });
