@@ -42,8 +42,6 @@ import Documentation from "./pages/Documentation";
 import Generate from "./pages/Generate";
 import Personalization from "./pages/Personalization";
 import Help from "./pages/Help";
-import CookiePolicy from "./pages/CookiePolicy";
-import { CookieConsent } from "./components/CookieConsent";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -94,7 +92,6 @@ const AnimatedRoutes = () => {
         <Route path="/careers" element={<Careers />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/documentation" element={<Documentation />} />
-        <Route path="/cookie-policy" element={<CookiePolicy />} />
 
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
@@ -110,7 +107,6 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <CookieConsent />
           <BrowserRouter>
             <GatingGuard>
               <AnimatedRoutes />

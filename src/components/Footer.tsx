@@ -61,11 +61,6 @@ const Footer = () => {
                   Documentation
                 </Link>
               </li>
-              <li>
-                <Link to="/cookie-policy" className="text-muted-foreground hover:text-primary transition-colors">
-                  Cookie Policy
-                </Link>
-              </li>
             </ul>
           </div>
 
