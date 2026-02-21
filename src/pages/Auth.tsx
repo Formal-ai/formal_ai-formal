@@ -54,6 +54,16 @@ const Auth = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (resendCountdown > 0) {
+      timer = setInterval(() => {
+        setResendCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [resendCountdown]);
+
   const validatePassword = (pass: string) => {
     if (pass.length >= 15) return true;
     const hasNumber = /\d/.test(pass);
@@ -164,15 +174,6 @@ const Auth = () => {
       if (error) throw error;
       toast.success("Verification email resent!");
       setResendCountdown(60);
-      const timer = setInterval(() => {
-        setResendCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
     } catch (error: any) {
       toast.error(error.message || "Failed to resend verification email.");
     } finally {
