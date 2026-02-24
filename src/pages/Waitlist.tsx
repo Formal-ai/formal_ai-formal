@@ -26,6 +26,12 @@ interface IdentityData {
     ageRange: string;
 }
 
+interface BusinessData {
+    companyName: string;
+    jobTitle: string;
+    websiteUrl: string;
+}
+
 const PhoneInputComponent = forwardRef<HTMLInputElement, React.ComponentProps<"input">>(({ className, ...props }, ref) => {
     return (
         <Input
@@ -56,14 +62,14 @@ const OptionCard = ({
         whileTap={{ scale: 0.995 }}
         onClick={onClick}
         className={`group w-full text-left py-4 px-5 rounded-[2rem] border transition-all duration-300 relative overflow-hidden ${selected
-            ? "border-primary dark:border-white bg-primary/5 dark:bg-white/5 shadow-md shadow-primary/5 dark:shadow-white/5"
-            : "border-border/50 dark:border-white/10 hover:border-primary/30 dark:hover:border-white/20 bg-card/50 dark:bg-white/[0.02]"
+            ? "border-primary dark:border-white bg-primary/10 dark:bg-white/10 shadow-lg shadow-primary/5 dark:shadow-white/5"
+            : "border-border/60 dark:border-white/20 hover:border-primary/50 dark:hover:border-white/40 bg-card/80 dark:bg-white/[0.05]"
             }`}
     >
         <div className={`absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 transition-opacity duration-300 ${selected ? "opacity-100" : ""}`} />
 
         <div className="flex items-center justify-between relative z-10">
-            <p className={`text-[15px] transition-colors duration-200 ${selected ? "font-semibold text-foreground dark:text-white" : "text-muted-foreground group-hover:text-foreground/80 dark:group-hover:text-white/80"}`}>
+            <p className={`text-sm md:text-base transition-colors duration-200 ${selected ? "font-bold text-foreground dark:text-white" : "text-zinc-800 dark:text-zinc-200 font-medium group-hover:text-foreground dark:group-hover:text-white"}`}>
                 {label}
             </p>
 
@@ -112,12 +118,12 @@ const QuestionBlock = ({
         className="space-y-4 mb-8"
     >
         <div className="flex items-baseline gap-4">
-            <span className="text-2xl font-mono text-muted-foreground/40 font-bold select-none">
+            <span className="text-2xl font-mono text-primary/60 dark:text-blue-400/60 font-bold select-none">
                 0{index + 1}
             </span>
             <div className="space-y-1">
-                <h3 className="text-lg md:text-xl font-semibold text-foreground dark:text-white leading-tight">
-                    {question} {required && <span className="text-red-500 text-sm align-top">*</span>}
+                <h3 className="text-lg md:text-2xl font-bold text-foreground dark:text-white leading-tight tracking-tight">
+                    {question} {required && <span className="text-red-500 text-sm align-top font-normal">*</span>}
                 </h3>
             </div>
         </div>
@@ -132,7 +138,7 @@ const QuestionBlock = ({
                 />
             ))}
         </div>
-    </motion.div>
+    </motion.div >
 );
 
 /* ─── Customer Questions ─── */
@@ -194,7 +200,7 @@ const customerQuestions = [
         options: [
             { label: "Free tier with limited features", value: "free-forever" },
             { label: "Free trial, then $9.99/month for unlimited access", value: "freemium" },
-            { label: "Pay-per-image ($1\u20132 each)", value: "pay-per-use" },
+            { label: "Pay-per-image ($1–2 each)", value: "pay-per-use" },
             { label: "Premium annual subscription with full access", value: "premium-annual" },
         ],
     },
@@ -255,9 +261,9 @@ const designerQuestions = [
         key: "monthlyReleases",
         question: "How many new products do you release per month?",
         options: [
-            { label: "1\u20135 items", value: "1-5" },
-            { label: "6\u201320 items", value: "6-20" },
-            { label: "21\u201350 items", value: "21-50" },
+            { label: "1–5 items", value: "1-5" },
+            { label: "6–20 items", value: "6-20" },
+            { label: "21–50 items", value: "21-50" },
             { label: "50+ items", value: "50+" },
         ],
     },
@@ -290,6 +296,12 @@ const Waitlist = () => {
 
     // Step 2
     const [role, setRole] = useState<Role>("");
+    const [business, setBusiness] = useState<BusinessData>({
+        companyName: "",
+        jobTitle: "",
+        websiteUrl: "",
+    });
+    const [businessErrors, setBusinessErrors] = useState<Partial<BusinessData>>({});
 
     // Step 3 — answers keyed by question key
     const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -298,6 +310,16 @@ const Waitlist = () => {
     const [honeypot, setHoneypot] = useState("");
 
     const [waitlistId, setWaitlistId] = useState<string | null>(null);
+    const [challengeSelection, setChallengeSelection] = useState<"a" | "b" | null>(null);
+
+    const shareMessage = `The Formal AI waitlist is NOW OPEN!
+
+If you want AI-generated professional portraits or you’re a designer wanting to showcase your brand digitally, 
+
+Waitlist members get priority access and launch benefits.
+
+Join here:👇
+https://formalai.studio/`;
 
     /* ─── Validation ─── */
     const validateIdentity = (): boolean => {
@@ -307,6 +329,18 @@ const Waitlist = () => {
         if (!identity.phone || identity.phone.length < 5) errors.phone = "Please enter a valid phone number";
         if (!identity.ageRange) errors.ageRange = "Please select an age range";
         setIdentityErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const validateBusiness = (): boolean => {
+        if (role !== "designer") return true;
+        const errors: Partial<BusinessData> = {};
+        if (!business.companyName || business.companyName.trim().length < 2) errors.companyName = "Company name is required";
+        if (!business.jobTitle || business.jobTitle.trim().length < 2) errors.jobTitle = "Job title is required";
+        if (business.websiteUrl && !/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(business.websiteUrl)) {
+            errors.websiteUrl = "Please enter a valid URL";
+        }
+        setBusinessErrors(errors);
         return Object.keys(errors).length === 0;
     };
 
@@ -320,19 +354,46 @@ const Waitlist = () => {
         return true;
     };
 
+    const validateStep4 = (): boolean => {
+        if (!challengeSelection) {
+            toast.error("Please select an image to continue.");
+            return false;
+        }
+        return true;
+    };
+
     /* ─── Submit ─── */
     const onSubmit = async () => {
         if (honeypot) return;
-        if (!validateStep3()) return;
+        if (!validateStep4()) return;
 
         setIsSubmitting(true);
         try {
-            const { data, error } = await (supabase as any)
+            // DEBUG: Log everything before submission
+            console.log("DEBUG: Submitting waitlist form", {
+                identity,
+                role,
+                answers,
+                challengeSelection,
+                metadata: {
+                    ageRange: identity.ageRange,
+                    role,
+                    ...answers,
+                    challengeSelection: challengeSelection,
+                    challengeCorrect: challengeSelection === "a",
+                }
+            });
+
+            // 1. Insert into waitlist
+            const { data: waitlistData, error: waitlistError } = await (supabase as any)
                 .from("waitlist")
                 .insert({
                     full_name: identity.fullName,
                     email: identity.email,
                     phone_number: identity.phone,
+                    company_name: role === "designer" ? business.companyName : null,
+                    job_title: role === "designer" ? business.jobTitle : null,
+                    website_url: role === "designer" ? business.websiteUrl : null,
                     use_case: role === "customer" ? "Customer" : "Designer/Brand",
                     motivation: role === "customer" ? "Aspiring Customer" : "Designer/Brand Owner",
                     status: "pending",
@@ -340,15 +401,35 @@ const Waitlist = () => {
                         ageRange: identity.ageRange,
                         role,
                         ...answers,
+                        challengeSelection: challengeSelection,
+                        challengeCorrect: challengeSelection === "a",
                     },
                 })
                 .select()
                 .single();
 
-            if (error) throw error;
-            if (data) setWaitlistId((data as any).id);
+            if (waitlistError) throw waitlistError;
+
+            const newWaitlistId = (waitlistData as any).id;
+            setWaitlistId(newWaitlistId);
+
+            // 2. Insert into challenge_submissions
+            const isCorrect = challengeSelection === "a";
+            const { error: challengeError } = await (supabase
+                .from("challenge_submissions" as any) as any)
+                .insert({
+                    waitlist_id: newWaitlistId,
+                    selection: challengeSelection,
+                    is_correct: isCorrect,
+                });
+
+            if (challengeError) {
+                console.error("Error submitting challenge:", challengeError);
+                // We don't throw here to avoid failing the whole process if just the challenge log fails
+            }
+
             setIsSubmitted(true);
-            toast.success("Your spot has been secured.");
+            toast.success("Your spot has been secured!");
         } catch (error) {
             const err = error as { code?: string; message?: string };
             console.error(err);
@@ -364,13 +445,14 @@ const Waitlist = () => {
     };
 
     /* ─── Step Config ─── */
-    const totalSteps = 3;
-    const progressPercent = step === 1 ? "33%" : step === 2 ? "66%" : "100%";
+    const totalSteps = 4;
+    const progressPercent = step === 1 ? "25%" : step === 2 ? "50%" : step === 3 ? "75%" : "100%";
 
     const stepTitles: Record<number, { title: string; desc: string }> = {
         1: { title: "Identity", desc: "No friction, real commitment." },
         2: { title: "Who Are You?", desc: "Help us tailor the perfect experience for you." },
         3: { title: role === "customer" ? "Your Style Preferences" : "Your Business", desc: role === "customer" ? "Help us build exactly what you want." : "Let's understand how Formal.AI can accelerate your brand." },
+        4: { title: "", desc: "" },
     };
 
     const ageOptions = ["Under 18", "18–24", "25–34", "35–44", "45+"];
@@ -423,7 +505,7 @@ const Waitlist = () => {
 
                                 <CardHeader className="pt-8 px-8 pb-2">
                                     <div className="flex items-center gap-3 mb-2">
-                                        {[1, 2, 3].map((s) => (
+                                        {[1, 2, 3, 4].map((s) => (
                                             <div
                                                 key={s}
                                                 className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border transition-colors ${s === step
@@ -500,9 +582,9 @@ const Waitlist = () => {
                                                                     key={age}
                                                                     type="button"
                                                                     onClick={() => setIdentity({ ...identity, ageRange: age })}
-                                                                    className={`py-3 px-2 rounded-2xl text-xs font-medium border-2 transition-all ${identity.ageRange === age
+                                                                    className={`py-3 px-2 rounded-2xl text-sm font-semibold border-2 transition-all ${identity.ageRange === age
                                                                         ? "border-primary dark:border-white bg-primary/10 dark:bg-white/10 text-foreground dark:text-white"
-                                                                        : "border-border dark:border-white/10 text-muted-foreground hover:border-primary/40 dark:hover:border-white/30"
+                                                                        : "border-border dark:border-white/10 text-foreground/70 dark:text-white/60 hover:border-primary/40 dark:hover:border-white/30"
                                                                         }`}
                                                                 >
                                                                     {age}
@@ -539,16 +621,21 @@ const Waitlist = () => {
                                                         whileHover={{ scale: 1.02, y: -2 }}
                                                         whileTap={{ scale: 0.98 }}
                                                         onClick={() => setRole("customer")}
-                                                        className={`text-left p-6 rounded-[2.5rem] border-2 transition-all duration-300 ${role === "customer"
+                                                        className={`text-left p-6 rounded-[2.5rem] border-2 transition-all duration-300 relative overflow-hidden ${role === "customer"
                                                             ? "border-primary dark:border-white bg-primary/5 dark:bg-white/5 shadow-xl shadow-primary/10 dark:shadow-white/10"
                                                             : "border-border dark:border-white/10 hover:border-primary/40 dark:hover:border-white/30"
                                                             }`}
                                                     >
-                                                        <span className="text-[11px] font-semibold uppercase tracking-widest text-primary/70 dark:text-white/50 mb-2 block">Customer</span>
-                                                        <h3 className="text-base font-bold text-foreground dark:text-white leading-snug">I want to style myself</h3>
-                                                        <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">Virtual try-on, professional photos, hairstyles and accessories</p>
+                                                        {/* Customer styling pattern background */}
+                                                        <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{
+                                                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cdefs%3E%3Cstyle%3E.c%7Bfill:none;stroke:%236b9bd2;stroke-width:1%7D%3C/style%3E%3C/defs%3E%3C!-- Hand mirror --%3E%3Ccircle cx='45' cy='35' r='18' class='c'/%3E%3Ccircle cx='45' cy='35' r='14' class='c'/%3E%3Cline x1='45' y1='53' x2='45' y2='75' class='c' stroke-width='3'/%3E%3C!-- Hair comb --%3E%3Crect x='130' y='20' width='30' height='8' rx='2' class='c'/%3E%3Cline x1='135' y1='28' x2='135' y2='42' class='c'/%3E%3Cline x1='140' y1='28' x2='140' y2='42' class='c'/%3E%3Cline x1='145' y1='28' x2='145' y2='42' class='c'/%3E%3Cline x1='150' y1='28' x2='150' y2='42' class='c'/%3E%3Cline x1='155' y1='28' x2='155' y2='42' class='c'/%3E%3C!-- Sunglasses --%3E%3Cellipse cx='35' cy='120' rx='16' ry='12' class='c'/%3E%3Cellipse cx='75' cy='120' rx='16' ry='12' class='c'/%3E%3Cline x1='51' y1='118' x2='59' y2='118' class='c'/%3E%3Cline x1='19' y1='115' x2='10' y2='112' class='c'/%3E%3Cline x1='91' y1='115' x2='100' y2='112' class='c'/%3E%3C!-- Lipstick --%3E%3Crect x='145' y='100' width='12' height='35' rx='2' class='c'/%3E%3Cpath d='M145 100 L151 85 L157 100' class='c'/%3E%3Cline x1='145' y1='120' x2='157' y2='120' class='c'/%3E%3C!-- Sparkles --%3E%3Cpath d='M100 80 L103 73 L106 80 L103 87 Z' class='c'/%3E%3Cline x1='96' y1='80' x2='110' y2='80' class='c'/%3E%3Cpath d='M170 160 L172 155 L174 160 L172 165 Z' class='c'/%3E%3Cline x1='167' y1='160' x2='177' y2='160' class='c'/%3E%3Cpath d='M30 170 L32 166 L34 170 L32 174 Z' class='c'/%3E%3Cline x1='28' y1='170' x2='36' y2='170' class='c'/%3E%3C!-- Hanger --%3E%3Cpath d='M120 160 L140 180 L100 180 Z' class='c'/%3E%3Cline x1='120' y1='153' x2='120' y2='160' class='c'/%3E%3Ccircle cx='120' cy='150' r='3' class='c'/%3E%3C/svg%3E")`,
+                                                            backgroundSize: '200px 200px',
+                                                        }} />
+                                                        <span className="relative z-10 text-[15px] font-black font-serif uppercase tracking-wider text-blue-500 dark:text-blue-400 mb-3 block">Customer</span>
+                                                        <h3 className="relative z-10 text-lg font-bold text-foreground dark:text-white leading-snug">I want to style myself</h3>
+                                                        <p className="relative z-10 text-sm text-muted-foreground mt-1.5 leading-relaxed">Virtual try-on, professional photos, hairstyles and accessories</p>
                                                         {role === "customer" && (
-                                                            <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="mt-3 text-xs font-semibold text-primary dark:text-white uppercase tracking-wider">
+                                                            <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 mt-3 text-xs font-semibold text-primary dark:text-white uppercase tracking-wider">
                                                                 ✓ Selected
                                                             </motion.div>
                                                         )}
@@ -560,21 +647,72 @@ const Waitlist = () => {
                                                         whileHover={{ scale: 1.02, y: -2 }}
                                                         whileTap={{ scale: 0.98 }}
                                                         onClick={() => setRole("designer")}
-                                                        className={`text-left p-6 rounded-[2.5rem] border-2 transition-all duration-300 ${role === "designer"
-                                                            ? "border-primary dark:border-white bg-primary/5 dark:bg-white/5 shadow-xl shadow-primary/10 dark:shadow-white/10"
-                                                            : "border-border dark:border-white/10 hover:border-primary/40 dark:hover:border-white/30"
+                                                        className={`text-left p-6 rounded-[2.5rem] border-2 transition-all duration-300 relative overflow-hidden ${role === "designer"
+                                                            ? "border-amber-700/60 dark:border-amber-600/50 bg-amber-900/10 dark:bg-amber-900/15 shadow-xl shadow-amber-900/10 dark:shadow-amber-800/10"
+                                                            : "border-border dark:border-white/10 hover:border-amber-700/40 dark:hover:border-amber-600/30"
                                                             }`}
                                                     >
-                                                        <span className="text-[11px] font-semibold uppercase tracking-widest text-primary/70 dark:text-white/50 mb-2 block">Brand / Designer</span>
-                                                        <h3 className="text-base font-bold text-foreground dark:text-white leading-snug">I want to sell my designs</h3>
-                                                        <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">List your products, enable virtual try-on, and sell directly to customers</p>
+                                                        {/* Designer pattern background */}
+                                                        <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{
+                                                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cdefs%3E%3Cstyle%3E.c%7Bfill:none;stroke:%23c4956a;stroke-width:1%7D%3C/style%3E%3C/defs%3E%3C!-- Measuring tape horizontal --%3E%3Cline x1='0' y1='30' x2='200' y2='30' class='c'/%3E%3Cline x1='10' y1='26' x2='10' y2='34' class='c'/%3E%3Cline x1='20' y1='28' x2='20' y2='32' class='c'/%3E%3Cline x1='30' y1='28' x2='30' y2='32' class='c'/%3E%3Cline x1='40' y1='28' x2='40' y2='32' class='c'/%3E%3Cline x1='50' y1='26' x2='50' y2='34' class='c'/%3E%3Cline x1='60' y1='28' x2='60' y2='32' class='c'/%3E%3Cline x1='70' y1='28' x2='70' y2='32' class='c'/%3E%3Cline x1='80' y1='28' x2='80' y2='32' class='c'/%3E%3Cline x1='90' y1='26' x2='90' y2='34' class='c'/%3E%3Cline x1='100' y1='28' x2='100' y2='32' class='c'/%3E%3Cline x1='110' y1='28' x2='110' y2='32' class='c'/%3E%3Cline x1='120' y1='28' x2='120' y2='32' class='c'/%3E%3Cline x1='130' y1='26' x2='130' y2='34' class='c'/%3E%3Cline x1='140' y1='28' x2='140' y2='32' class='c'/%3E%3Cline x1='150' y1='28' x2='150' y2='32' class='c'/%3E%3Cline x1='160' y1='28' x2='160' y2='32' class='c'/%3E%3Cline x1='170' y1='26' x2='170' y2='34' class='c'/%3E%3C!-- Scissors --%3E%3Cellipse cx='60' cy='90' rx='10' ry='6' class='c' transform='rotate(-20 60 90)'/%3E%3Cellipse cx='60' cy='100' rx='10' ry='6' class='c' transform='rotate(20 60 100)'/%3E%3Cline x1='68' y1='90' x2='85' y2='80' class='c'/%3E%3Cline x1='68' y1='100' x2='85' y2='110' class='c'/%3E%3C!-- Thread spool --%3E%3Crect x='140' y='80' width='20' height='30' rx='3' class='c'/%3E%3Cline x1='140' y1='88' x2='160' y2='88' class='c'/%3E%3Cline x1='140' y1='102' x2='160' y2='102' class='c'/%3E%3Ccircle cx='150' cy='95' r='4' class='c'/%3E%3C!-- Measuring tape vertical --%3E%3Cline x1='170' y1='0' x2='170' y2='200' class='c'/%3E%3Cline x1='166' y1='20' x2='174' y2='20' class='c'/%3E%3Cline x1='168' y1='40' x2='172' y2='40' class='c'/%3E%3Cline x1='166' y1='60' x2='174' y2='60' class='c'/%3E%3Cline x1='168' y1='80' x2='172' y2='80' class='c'/%3E%3Cline x1='166' y1='100' x2='174' y2='100' class='c'/%3E%3Cline x1='168' y1='120' x2='172' y2='120' class='c'/%3E%3Cline x1='166' y1='140' x2='174' y2='140' class='c'/%3E%3Cline x1='168' y1='160' x2='172' y2='160' class='c'/%3E%3Cline x1='166' y1='180' x2='174' y2='180' class='c'/%3E%3C!-- Needle and thread --%3E%3Cline x1='20' y1='140' x2='50' y2='170' class='c'/%3E%3Ccircle cx='18' cy='138' r='2' class='c'/%3E%3Cpath d='M50 170 Q60 155 55 145 Q50 155 65 150' class='c'/%3E%3C!-- Hanger --%3E%3Cpath d='M100 140 L115 160 L85 160 Z' class='c'/%3E%3Cline x1='100' y1='135' x2='100' y2='140' class='c'/%3E%3Ccircle cx='100' cy='133' r='3' class='c'/%3E%3C/svg%3E")`,
+                                                            backgroundSize: '200px 200px',
+                                                        }} />
+                                                        <span className="relative z-10 text-[15px] font-black font-serif uppercase tracking-wider text-amber-700 dark:text-amber-500 mb-3 block">Brand / Designer</span>
+                                                        <h3 className="relative z-10 text-lg font-bold text-foreground dark:text-white leading-snug">I want to sell my designs</h3>
+                                                        <p className="relative z-10 text-sm text-muted-foreground mt-1.5 leading-relaxed">List your products, enable virtual try-on, and sell directly to customers</p>
                                                         {role === "designer" && (
-                                                            <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="mt-3 text-xs font-semibold text-primary dark:text-white uppercase tracking-wider">
+                                                            <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 mt-3 text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
                                                                 ✓ Selected
                                                             </motion.div>
                                                         )}
                                                     </motion.button>
                                                 </div>
+
+                                                <AnimatePresence>
+                                                    {role === "designer" && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, height: 0 }}
+                                                            animate={{ opacity: 1, height: "auto" }}
+                                                            exit={{ opacity: 0, height: 0 }}
+                                                            className="overflow-hidden"
+                                                        >
+                                                            <div className="space-y-4 pt-4 px-1 pb-1 border-t border-border/50 dark:border-white/5">
+                                                                <div className="grid md:grid-cols-2 gap-4">
+                                                                    <div className="space-y-2">
+                                                                        <Label className="text-sm font-medium text-muted-foreground dark:text-neutral-300">Company Name <span className="text-red-500">*</span></Label>
+                                                                        <Input
+                                                                            value={business.companyName}
+                                                                            onChange={(e) => setBusiness({ ...business, companyName: e.target.value })}
+                                                                            placeholder="Your brand or company"
+                                                                            className="bg-background dark:bg-white/5 border-border dark:border-white/10 text-foreground dark:text-white h-11 rounded-2xl focus:ring-1 focus:ring-primary font-light"
+                                                                        />
+                                                                        {businessErrors.companyName && <p className="text-xs text-red-500 font-medium">{businessErrors.companyName}</p>}
+                                                                    </div>
+                                                                    <div className="space-y-2">
+                                                                        <Label className="text-sm font-medium text-muted-foreground dark:text-neutral-300">Job Title <span className="text-red-500">*</span></Label>
+                                                                        <Input
+                                                                            value={business.jobTitle}
+                                                                            onChange={(e) => setBusiness({ ...business, jobTitle: e.target.value })}
+                                                                            placeholder="e.g. Creative Director"
+                                                                            className="bg-background dark:bg-white/5 border-border dark:border-white/10 text-foreground dark:text-white h-11 rounded-2xl focus:ring-1 focus:ring-primary font-light"
+                                                                        />
+                                                                        {businessErrors.jobTitle && <p className="text-xs text-red-500 font-medium">{businessErrors.jobTitle}</p>}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                    <Label className="text-sm font-medium text-muted-foreground dark:text-neutral-300">Website URL <span className="text-muted-foreground text-xs font-normal">(Optional)</span></Label>
+                                                                    <Input
+                                                                        value={business.websiteUrl}
+                                                                        onChange={(e) => setBusiness({ ...business, websiteUrl: e.target.value })}
+                                                                        placeholder="https://yourbrand.com"
+                                                                        className="bg-background dark:bg-white/5 border-border dark:border-white/10 text-foreground dark:text-white h-11 rounded-2xl focus:ring-1 focus:ring-primary font-light"
+                                                                    />
+                                                                    {businessErrors.websiteUrl && <p className="text-xs text-red-500 font-medium">{businessErrors.websiteUrl}</p>}
+                                                                </div>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
 
                                                 <div className="flex gap-4 pt-4">
                                                     <Button
@@ -594,7 +732,9 @@ const Waitlist = () => {
                                                                 toast.error("Please select a path to continue.");
                                                                 return;
                                                             }
-                                                            setStep(3);
+                                                            if (validateBusiness()) {
+                                                                setStep(3);
+                                                            }
                                                         }}
                                                     >
                                                         Continue
@@ -629,10 +769,121 @@ const Waitlist = () => {
                                                     <Button
                                                         type="button"
                                                         className="flex-[2] h-11 rounded-2xl font-semibold text-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg dark:shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-                                                        disabled={isSubmitting}
+                                                        onClick={() => {
+                                                            if (validateStep3()) setStep(4);
+                                                        }}
+                                                    >
+                                                        Continue
+                                                    </Button>
+                                                </div>
+                                            </motion.div>
+                                        )}
+
+                                        {/* ────── STEP 4: AI Challenge ────── */}
+                                        {step === 4 && (
+                                            <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                                                <div className="text-center space-y-4 mb-8">
+                                                    <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white flex items-center justify-center gap-3">
+                                                        AI or Real?
+                                                        <motion.span
+                                                            animate={{
+                                                                scale: [1, 1.2, 1],
+                                                                rotate: [0, 15, -15, 0]
+                                                            }}
+                                                            transition={{
+                                                                duration: 2,
+                                                                repeat: Infinity,
+                                                                ease: "easeInOut"
+                                                            }}
+                                                        >
+                                                            🎯
+                                                        </motion.span>
+                                                    </h2>
+                                                    <p className="text-lg md:text-xl text-muted-foreground font-medium">
+                                                        One of these images was created by AI. The other is a real photograph.
+                                                    </p>
+                                                    <div className="pt-4">
+                                                        <p className="text-[1.4rem] md:text-2xl font-black text-white leading-tight font-serif tracking-tight">
+                                                            Click the one you think was <span className="text-white">Generated</span> using <span className="animate-flash-effect text-blue-500 dark:text-blue-400 inline-block font-black font-serif">Formal.AI</span>!
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-2 md:gap-4">
+                                                    {/* Image A */}
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.02 }}
+                                                        whileTap={{ scale: 0.98 }}
+                                                        className={`relative rounded-2xl md:rounded-[2rem] overflow-hidden cursor-pointer border-2 md:border-4 transition-all duration-300 ${challengeSelection === "a" ? "border-primary shadow-xl" : "border-transparent"
+                                                            }`}
+                                                        onClick={() => setChallengeSelection("a")}
+                                                    >
+                                                        <img src="/images/challenge/image-a.png" alt="Candidate A" className="w-full aspect-[4/5] object-cover" />
+                                                        {challengeSelection === "a" && (
+                                                            <div className="absolute top-2 right-2 md:top-4 md:right-4 p-1.5 md:p-2">
+                                                                <svg width="24" height="24" className="md:w-8 md:h-8 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] filter transition-all duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4">
+                                                                    <motion.path
+                                                                        initial={{ pathLength: 0 }}
+                                                                        animate={{ pathLength: 1 }}
+                                                                        d="M20 6L9 17L4 12"
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                    />
+                                                                </svg>
+                                                            </div>
+                                                        )}
+
+                                                        <div className="absolute bottom-2 left-2 md:bottom-4 md:left-4 bg-black/40 backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-white/10 text-[8px] md:text-[10px] font-bold tracking-widest uppercase text-white/90">OPTION A</div>
+                                                    </motion.div>
+
+                                                    {/* Image B */}
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.02 }}
+                                                        whileTap={{ scale: 0.98 }}
+                                                        className={`relative rounded-2xl md:rounded-[2rem] overflow-hidden cursor-pointer border-2 md:border-4 transition-all duration-300 ${challengeSelection === "b" ? "border-primary shadow-xl" : "border-transparent"
+                                                            }`}
+                                                        onClick={() => setChallengeSelection("b")}
+                                                    >
+                                                        <img src="/images/challenge/image-b.png" alt="Candidate B" className="w-full aspect-[4/5] object-cover" />
+                                                        {challengeSelection === "b" && (
+                                                            <div className="absolute top-2 right-2 md:top-4 md:right-4 p-1.5 md:p-2">
+                                                                <svg width="24" height="24" className="md:w-8 md:h-8 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] filter transition-all duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4">
+                                                                    <motion.path
+                                                                        initial={{ pathLength: 0 }}
+                                                                        animate={{ pathLength: 1 }}
+                                                                        d="M20 6L9 17L4 12"
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                    />
+                                                                </svg>
+                                                            </div>
+                                                        )}
+
+                                                        <div className="absolute bottom-2 left-2 md:bottom-4 md:left-4 bg-black/40 backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-white/10 text-[8px] md:text-[10px] font-bold tracking-widest uppercase text-white/90">OPTION B</div>
+                                                    </motion.div>
+                                                </div>
+
+                                                <div className="flex gap-4 pt-4">
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        className="flex-1 h-11 rounded-2xl border border-border dark:border-white/10 hover:bg-accent/50 text-muted-foreground"
+                                                        onClick={() => setStep(3)}
+                                                    >
+                                                        Back
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        className="flex-[2] h-11 rounded-2xl font-semibold text-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg overflow-hidden group relative"
+                                                        disabled={isSubmitting || !challengeSelection}
                                                         onClick={onSubmit}
                                                     >
-                                                        {isSubmitting ? "Securing your spot..." : "Secure My Spot"}
+                                                        <motion.div
+                                                            className="absolute inset-0 bg-white/20 translate-x-[-100%]"
+                                                            animate={isSubmitting ? { x: "100%" } : { x: "-100%" }}
+                                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                        />
+                                                        {isSubmitting ? "Securing your spot..." : "Secure My Spot 🔒"}
                                                     </Button>
                                                 </div>
                                             </motion.div>
@@ -647,59 +898,129 @@ const Waitlist = () => {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="max-w-lg w-full space-y-6"
+                        className="max-w-xl w-full space-y-8"
                     >
-                        {/* Confirmation Card */}
-                        <Card className="bg-card dark:bg-[#0a0a0a] border-border dark:border-white/10 text-card-foreground dark:text-white shadow-2xl rounded-[3rem] overflow-hidden relative">
-                            <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
-                            <CardContent className="p-12 text-center space-y-6 relative z-10">
+                        <Card className="bg-card dark:bg-[#0a0a0a] border-border dark:border-white/10 text-card-foreground dark:text-white shadow-2xl rounded-[3.5rem] overflow-hidden relative border-2 ring-1 ring-white/10 transition-all duration-700">
+                            <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
+                            <CardContent className="p-10 text-center space-y-8 relative z-10 font-sans">
                                 <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                                    className="w-16 h-16 bg-primary dark:bg-white rounded-full mx-auto flex items-center justify-center mb-6"
+                                    initial={{ scale: 0, rotate: -20 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+                                    className="text-6xl mb-4"
                                 >
-                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-primary-foreground dark:text-black">
-                                        <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
+                                    🥳
                                 </motion.div>
-                                <div className="space-y-2">
-                                    <h2 className="text-3xl font-bold tracking-tight">You're on the waitlist</h2>
-                                    <p className="text-muted-foreground text-lg leading-relaxed">
-                                        We're onboarding early users in limited waves. You'll be notified first when your access is ready.
-                                    </p>
+
+                                <div className="space-y-4">
+                                    <h2 className="text-4xl font-black tracking-tight uppercase bg-gradient-to-r from-white via-white/80 to-white/50 bg-clip-text text-transparent">
+                                        You're on the list!
+                                    </h2>
+
+                                </div>
+
+                                <div className="pt-8 border-t border-white/5 space-y-6">
+                                    <div className="relative overflow-hidden rounded-3xl p-8 border border-white/10 bg-gradient-to-br from-white/5 via-transparent to-primary/5 group transition-all duration-500 hover:border-primary/30">
+                                        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
+                                        <div className="relative space-y-3">
+                                            <h3 className="text-2xl font-serif font-black tracking-tight text-white leading-tight">
+                                                Invite your Friends to be part of the <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-primary animate-pulse">Elite! 👑</span>
+                                            </h3>
+
+                                        </div>
+                                    </div>
+
+                                    <div className="relative group max-w-md mx-auto">
+                                        <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-blue-500/20 to-primary/20 rounded-[2rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
+                                        <div className="relative flex items-center gap-3 bg-black/60 dark:bg-white/5 border border-white/10 rounded-[1.5rem] p-2 pl-5 transition-all duration-300 group-hover:border-white/20 group-hover:bg-black/80">
+                                            <span className="text-sm text-neutral-400 font-mono truncate flex-1">
+                                                formalai.studio
+                                            </span>
+                                            <Button
+                                                variant="secondary"
+                                                className="rounded-2xl h-10 px-6 text-xs font-bold bg-white text-black hover:bg-neutral-200 transition-all active:scale-95 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(shareMessage);
+                                                    toast.success("Message copied to clipboard!");
+                                                }}
+                                            >
+                                                Copy Message
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-wrap justify-center gap-5 pt-4">
+                                        {[
+                                            {
+                                                name: "X",
+                                                color: "#000000",
+                                                icon: (
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                                                    </svg>
+                                                ),
+                                                onClick: () => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareMessage)}`)
+                                            },
+                                            {
+                                                name: "WhatsApp",
+                                                color: "#25D366",
+                                                icon: (
+                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.659 1.437 5.634 1.437h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                                                    </svg>
+                                                ),
+                                                onClick: () => window.open(`https://wa.me/?text=${encodeURIComponent(shareMessage)}`)
+                                            },
+                                            {
+                                                name: "Instagram",
+                                                color: "linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)",
+                                                icon: (
+                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                                                    </svg>
+                                                ),
+                                                onClick: () => toast.info("Instagram sharing coming soon!")
+                                            },
+                                            {
+                                                name: "Facebook",
+                                                color: "#1877F2",
+                                                icon: (
+                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                                                    </svg>
+                                                ),
+                                                onClick: () => window.open(`https://www.facebook.com/sharer/sharer.php?u=https://formalai.studio/`)
+                                            },
+                                            {
+                                                name: "Email",
+                                                color: "#333333",
+                                                icon: (
+                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                                                    </svg>
+                                                ),
+                                                onClick: () => window.location.href = `mailto:?subject=Join the Formal.AI Waitlist&body=${encodeURIComponent(shareMessage)}`
+                                            }
+                                        ].map((app) => (
+                                            <div key={app.name} className="flex flex-col items-center gap-2">
+                                                <motion.button
+                                                    whileHover={{ scale: 1.1, y: -5 }}
+                                                    whileTap={{ scale: 0.9 }}
+                                                    onClick={app.onClick}
+                                                    style={{ background: app.color }}
+                                                    className="w-14 h-14 md:w-16 md:h-16 rounded-[1.25rem] flex items-center justify-center shadow-lg relative overflow-hidden group"
+                                                >
+                                                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    <div className="absolute inset-0 shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)] rounded-[1.25rem]" />
+                                                    {app.icon}
+                                                </motion.button>
+                                                <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">{app.name}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
-
-                        {/* AI Challenge CTA */}
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-                            <Card className="bg-gradient-to-br from-primary/5 via-card to-primary/10 dark:from-white/5 dark:via-[#0a0a0a] dark:to-white/10 border-primary/20 dark:border-white/20 text-card-foreground dark:text-white shadow-xl rounded-[3rem] overflow-hidden cursor-pointer group"
-                                onClick={() => navigate("/waitlist/challenge", { state: { waitlistId } })}
-                            >
-                                <CardContent className="p-8 text-center space-y-4">
-                                    <div className="w-12 h-12 rounded-full bg-primary/10 dark:bg-white/10 flex items-center justify-center mx-auto">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-primary dark:text-white">
-                                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                    </div>
-                                    <h3 className="text-xl font-bold">Quick Challenge</h3>
-                                    <p className="text-muted-foreground">
-                                        Can you tell AI from reality? Guess correctly and unlock a <span className="font-bold text-foreground dark:text-white">SURPRISE bonus</span> when we launch!
-                                    </p>
-                                    <Button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            navigate("/waitlist/challenge", { state: { waitlistId } });
-                                        }}
-                                        className="mt-2 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold group-hover:shadow-lg transition-all"
-                                    >
-                                        Take the Challenge →
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
 
                         <div className="text-center">
                             <Link to="/">
