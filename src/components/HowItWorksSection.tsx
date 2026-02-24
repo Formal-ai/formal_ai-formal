@@ -99,7 +99,7 @@ const HowItWorksSection = () => {
           {/* Navigation Arrows */}
           <button
             onClick={prevFrame}
-            className="absolute left-0 top-1/2 -translate-y-1/2 translate-x-2 md:-translate-x-12 xl:-translate-x-16 z-20 p-3 md:p-4 rounded-full bg-white/20 dark:bg-neutral-800/40 backdrop-blur-xl text-neutral-900 dark:text-neutral-50 shadow-2xl hover:scale-110 hover:bg-white/30 dark:hover:bg-neutral-700/50 transition-all duration-300 border border-white/30 dark:border-white/10"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 md:-translate-x-12 xl:-translate-x-16 z-20 p-3 md:p-4 rounded-full bg-white/20 dark:bg-neutral-800/40 backdrop-blur-xl text-neutral-900 dark:text-neutral-50 shadow-2xl hover:scale-110 hover:bg-white/30 dark:hover:bg-neutral-700/50 transition-all duration-300 border border-white/30 dark:border-white/10"
             aria-label="Previous frame"
           >
             <ChevronLeft size={22} className="drop-shadow-sm font-bold" />
@@ -107,7 +107,7 @@ const HowItWorksSection = () => {
 
           <button
             onClick={nextFrame}
-            className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-2 md:translate-x-12 xl:translate-x-16 z-20 p-3 md:p-4 rounded-full bg-white/20 dark:bg-neutral-800/40 backdrop-blur-xl text-neutral-900 dark:text-neutral-50 shadow-2xl hover:scale-110 hover:bg-white/30 dark:hover:bg-neutral-700/50 transition-all duration-300 border border-white/30 dark:border-white/10"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 md:translate-x-12 xl:translate-x-16 z-20 p-3 md:p-4 rounded-full bg-white/20 dark:bg-neutral-800/40 backdrop-blur-xl text-neutral-900 dark:text-neutral-50 shadow-2xl hover:scale-110 hover:bg-white/30 dark:hover:bg-neutral-700/50 transition-all duration-300 border border-white/30 dark:border-white/10"
             aria-label="Next frame"
           >
             <ChevronRight size={22} className="drop-shadow-sm font-bold" />
