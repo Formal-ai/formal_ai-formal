@@ -55,7 +55,7 @@ const HowItWorksSection = () => {
   };
 
   return (
-    <section className="py-20 md:py-32 bg-transparent overflow-hidden relative rounded-[3.5rem] my-12">
+    <section className="py-16 md:py-20 bg-[#020205] overflow-hidden relative">
       <div
         className="absolute inset-0 z-0 pointer-events-none opacity-50 dark:opacity-100"
         style={{
@@ -75,12 +75,12 @@ const HowItWorksSection = () => {
         />
       </div>
       <div className="container mx-auto px-4 max-w-5xl relative z-10">
-        <div className="text-center mb-16 space-y-4">
+        <div className="text-center mb-10 space-y-3">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50"
+            className="text-3xl md:text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50"
           >
             Real results. Real people.
           </motion.h2>
@@ -89,28 +89,28 @@ const HowItWorksSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-xl text-neutral-600 dark:text-neutral-400 font-medium max-w-2xl mx-auto"
+            className="text-lg text-neutral-600 dark:text-neutral-400 font-medium max-w-2xl mx-auto"
           >
             Professional refinement without altering identity. See the difference our AI makes while maintaining true likeness.
           </motion.p>
         </div>
 
-        <div className="relative group max-w-md mx-auto">
+        <div className="relative group max-w-[360px] mx-auto">
           {/* Navigation Arrows */}
           <button
             onClick={prevFrame}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 xl:-translate-x-16 z-20 p-4 rounded-full bg-white/10 dark:bg-neutral-800/20 backdrop-blur-md text-neutral-800 dark:text-neutral-200 shadow-xl hover:scale-110 hover:bg-white/20 dark:hover:bg-neutral-700/30 transition-all duration-300 opacity-0 group-hover:opacity-100 hidden md:block border border-white/20 dark:border-white/10"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 xl:-translate-x-16 z-20 p-3 md:p-4 rounded-full bg-white/10 dark:bg-neutral-800/20 backdrop-blur-md text-neutral-800 dark:text-neutral-200 shadow-xl hover:scale-110 hover:bg-white/20 dark:hover:bg-neutral-700/30 transition-all duration-300 border border-white/20 dark:border-white/10"
             aria-label="Previous frame"
           >
-            <ChevronLeft size={28} className="drop-shadow-sm" />
+            <ChevronLeft size={22} className="drop-shadow-sm" />
           </button>
 
           <button
             onClick={nextFrame}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 xl:translate-x-16 z-20 p-4 rounded-full bg-white/10 dark:bg-neutral-800/20 backdrop-blur-md text-neutral-800 dark:text-neutral-200 shadow-xl hover:scale-110 hover:bg-white/20 dark:hover:bg-neutral-700/30 transition-all duration-300 opacity-0 group-hover:opacity-100 hidden md:block border border-white/20 dark:border-white/10"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 xl:translate-x-16 z-20 p-3 md:p-4 rounded-full bg-white/10 dark:bg-neutral-800/20 backdrop-blur-md text-neutral-800 dark:text-neutral-200 shadow-xl hover:scale-110 hover:bg-white/20 dark:hover:bg-neutral-700/30 transition-all duration-300 border border-white/20 dark:border-white/10"
             aria-label="Next frame"
           >
-            <ChevronRight size={28} className="drop-shadow-sm" />
+            <ChevronRight size={22} className="drop-shadow-sm" />
           </button>
 
           {/* Comparison Container */}
@@ -138,26 +138,10 @@ const HowItWorksSection = () => {
             </AnimatePresence>
           </div>
 
-          {/* Mobile Carousel Controls */}
-          <div className="flex justify-center gap-4 mt-8 md:hidden">
-            <button
-              onClick={prevFrame}
-              className="p-3 rounded-full bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 shadow-md active:scale-95 transition-all"
-              aria-label="Previous frame"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <button
-              onClick={nextFrame}
-              className="p-3 rounded-full bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 shadow-md active:scale-95 transition-all"
-              aria-label="Next frame"
-            >
-              <ChevronRight size={20} />
-            </button>
-          </div>
+
 
           {/* Frame Indicators */}
-          <div className="flex justify-center gap-3 mt-8">
+          <div className="flex justify-center gap-3 mt-6">
             {frames.map((_, i) => (
               <button
                 key={i}

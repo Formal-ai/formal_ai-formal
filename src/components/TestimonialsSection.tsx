@@ -1,3 +1,4 @@
+
 import { useRef, useState } from "react";
 
 const TestimonialsSection = () => {
@@ -15,22 +16,22 @@ const TestimonialsSection = () => {
 
   const testimonials = [
     {
-      quote: "Formal.AI saved me thousands on professional photoshoots. The AI styling looks incredibly natural and business-ready.",
-      author: "Sarah Chen",
-      role: "CEO, TechStart",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150&h=150"
+      quote: "I had outdated professional photos, and this app helped me create higher quality ones. As an event host, Formal AI turns unpolished speaker photos into portraits that match my event standards.",
+      author: "Mandipa Amantle Hlabano",
+      role: "CEO, PutYouthOn & Her Armour",
+      avatar: "/testimonials/bo-jackson.jpg"
     },
     {
-      quote: "As a recent graduate, Formal.AI helped me create polished LinkedIn photos instantly. Game-changer for job applications.",
-      author: "Marcus Johnson",
-      role: "Software Engineer",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150&h=150"
+      quote: "Formal.AI saved me thousands on professional photoshoots for my social media and Linkedin. The AI styling looks incredibly natural and business-ready.",
+      author: "Bo Jackson",
+      role: "Managing Director, Growthority (Pty) Ltd",
+      avatar: "/testimonials/mandipa.jpg"
     },
     {
-      quote: "The accessory editing is phenomenal. I can test different looks for client meetings without multiple outfit changes.",
-      author: "Lisa Rodriguez",
-      role: "Corporate Consultant",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=150&h=150"
+      quote: "As a university student, Formal.AI helped me create polished professional images instantly for my GBV fliers.",
+      author: "Angela Mabena",
+      role: "UB Radio Journalist",
+      avatar: "/testimonials/angela.jpg"
     }
   ];
 
@@ -49,7 +50,7 @@ const TestimonialsSection = () => {
           <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white tracking-tight reveal-on-scroll">
             Loved by Professionals
           </h2>
-          <p className="text-blue-300/40 text-base md:text-xl max-w-2xl mx-auto font-medium leading-relaxed reveal-on-scroll stagger-delay-1">
+          <p className="text-blue-300/90 text-base md:text-xl max-w-2xl mx-auto font-medium leading-relaxed reveal-on-scroll stagger-delay-1">
             See how professionals are using Formal.AI to elevate their image
           </p>
         </div>
@@ -60,7 +61,7 @@ const TestimonialsSection = () => {
               key={index}
               className={`deep-sea-glass p-8 flex flex-col items-center text-center reveal-on-scroll stagger-delay-${index + 1}`}
             >
-              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-900/40 mb-4 bg-blue-950/40 shadow-lg">
+              <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20 dark:border-white/10 mb-4 bg-primary/5 dark:bg-white/5 shadow-xl transition-transform hover:scale-110 duration-500">
                 <img
                   src={testimonial.avatar}
                   alt={testimonial.author}
@@ -79,7 +80,7 @@ const TestimonialsSection = () => {
 
               <div className="w-8 h-px bg-blue-500/20 mb-4" />
 
-              <p className="text-blue-100/80 leading-relaxed text-base italic">
+              <p className="text-blue-50/90 leading-relaxed text-base italic">
                 "{testimonial.quote}"
               </p>
             </div>

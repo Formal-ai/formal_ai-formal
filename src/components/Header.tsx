@@ -69,16 +69,16 @@ const Header = () => {
   const [profileName, setProfileName] = useState("");
 
   const fetchProfile = async (userId: string) => {
-    // @ts-ignore
+    // @ts-expect-error
     const { data, error } = await supabase
       .from('profiles')
       .select('full_name')
       .eq('id', userId)
       .single();
 
-    // @ts-ignore
+    // @ts-expect-error
     if (data?.full_name) {
-      // @ts-ignore
+      // @ts-expect-error
       setProfileName(data.full_name.split(' ')[0]);
     }
   };
@@ -293,54 +293,85 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border animate-fade-in">
-            <nav className="flex flex-col gap-4">
-              <Link to="/" className="text-sm font-medium hover:text-accent transition-colors">
+          <div className="md:hidden py-6 border-t border-border animate-fade-in px-4 bg-background/95 backdrop-blur-xl">
+            <nav className="flex flex-col gap-6 items-end">
+              <Link
+                to="/"
+                className="text-lg font-medium hover:text-primary transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Home
               </Link>
               {LAUNCH_MODE === "waitlist" ? (
                 <>
-                  <Link to="/waitlist" className="text-sm font-medium hover:text-accent transition-colors">
+                  <Link
+                    to="/waitlist"
+                    className="text-lg font-medium hover:text-primary transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     Waitlist
                   </Link>
-                  <Link to="/about" className="text-sm font-medium hover:text-accent transition-colors">
+                  <Link
+                    to="/about"
+                    className="text-lg font-medium hover:text-primary transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     About
                   </Link>
-                  <Link to="/waitlist" className="w-full">
-                    <Button className="ios-glass-button rounded-full w-full py-4 font-semibold">
+                  <Link to="/waitlist" className="w-full flex justify-end pt-2">
+                    <Button
+                      className="ios-glass-button rounded-full w-fit px-10 py-6 text-base font-semibold"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
                       Join The Waitlist
                     </Button>
                   </Link>
                 </>
               ) : (
                 <>
-                  <div className="text-sm font-medium text-muted-foreground px-2">Studios</div>
-                  <Link to="/portrait-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
-                    Portrait Studio
-                  </Link>
-                  <Link to="/hair-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
-                    Hair Studio
-                  </Link>
-                  <Link to="/accessories-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
-                    Accessories Studio
-                  </Link>
-                  <Link to="/background-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
-                    Background Studio
-                  </Link>
-                  <Link to="/prompt-yourself-studio" className="text-sm font-medium hover:text-accent transition-colors pl-4">
-                    Prompt Yourself Studio
-                  </Link>
-                  <Link to="/pricing" className="text-sm font-medium hover:text-accent transition-colors">
+                  <div className="text-sm font-medium text-muted-foreground pr-2">Studios</div>
+                  {[
+                    { name: "Portrait Studio", path: "/portrait-studio" },
+                    { name: "Hair Studio", path: "/hair-studio" },
+                    { name: "Accessories Studio", path: "/accessories-studio" },
+                    { name: "Background Studio", path: "/background-studio" },
+                    { name: "Prompt Yourself Studio", path: "/prompt-yourself-studio" },
+                  ].map((studio) => (
+                    <Link
+                      key={studio.path}
+                      to={studio.path}
+                      className="text-lg font-medium hover:text-primary transition-colors pr-4"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {studio.name}
+                    </Link>
+                  ))}
+                  <Link
+                    to="/pricing"
+                    className="text-lg font-medium hover:text-primary transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     Pricing
                   </Link>
-                  <Link to="/contacts" className="text-sm font-medium hover:text-accent transition-colors">
+                  <Link
+                    to="/contacts"
+                    className="text-lg font-medium hover:text-primary transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     Contacts
                   </Link>
-                  <Link to="/about" className="text-sm font-medium hover:text-accent transition-colors">
+                  <Link
+                    to="/about"
+                    className="text-lg font-medium hover:text-primary transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     About
                   </Link>
-                  <Link to="/dashboard" className="w-full">
-                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full w-full">
+                  <Link to="/dashboard" className="w-full flex justify-end pt-2">
+                    <Button
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full w-fit px-10 py-6 text-base"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
                       Join Now
                     </Button>
                   </Link>

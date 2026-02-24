@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ChevronsLeftRight } from "lucide-react";
@@ -12,7 +12,67 @@ interface ImageCompareProps {
 export const ImageCompare = ({ original, formal, className = "" }: ImageCompareProps) => {
     const [sliderPosition, setSliderPosition] = useState(50);
     const [isDragging, setIsDragging] = useState(false);
+    const [hasInteracted, setHasInteracted] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    // Reset interaction state when images change (new slide)
+    useEffect(() => {
+        setHasInteracted(false);
+        setSliderPosition(50);
+    }, [original, formal]);
+
+    // Intersection Observer: detect when the component scrolls into view
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!el) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                }
+            },
+            { threshold: 0.4 }
+        );
+
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
+
+    // Hint animation: triggers when visible AND user hasn't interacted
+    useEffect(() => {
+        if (hasInteracted || !isVisible) return;
+
+        let animId: number;
+        let start: number | null = null;
+        const duration = 1600; // total animation time in ms
+
+        const animate = (timestamp: number) => {
+            if (!start) start = timestamp;
+            const elapsed = timestamp - start;
+            const t = Math.min(elapsed / duration, 1);
+
+            // Smooth sine curve: center → left → center → right → center
+            const position = 50 + Math.sin(t * Math.PI * 2) * 15;
+            setSliderPosition(position);
+
+            if (t < 1) {
+                animId = requestAnimationFrame(animate);
+            } else {
+                setSliderPosition(50);
+            }
+        };
+
+        const timeout = setTimeout(() => {
+            animId = requestAnimationFrame(animate);
+        }, 500);
+
+        return () => {
+            clearTimeout(timeout);
+            cancelAnimationFrame(animId);
+        };
+    }, [hasInteracted, isVisible, original, formal]);
 
     const handleMove = useCallback(
         (clientX: number) => {
@@ -25,7 +85,10 @@ export const ImageCompare = ({ original, formal, className = "" }: ImageCompareP
         []
     );
 
-    const handleMouseDown = () => setIsDragging(true);
+    const handleMouseDown = () => {
+        setIsDragging(true);
+        setHasInteracted(true);
+    };
     const handleMouseUp = () => setIsDragging(false);
 
     const handleMouseMove = (e: React.MouseEvent) => {

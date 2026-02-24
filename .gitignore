@@ -7,12 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Environment variables
-.env
-.env.*
-!.env.example
-
-# Production
+node_modules
 dist
 dist-ssr
 *.local
@@ -27,7 +22,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# Supabase
-supabase/.temp/
-node_modules

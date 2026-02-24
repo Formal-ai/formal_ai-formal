@@ -61,7 +61,7 @@ const HeroSection = () => {
     >
       <div className="grid md:grid-cols-2 gap-4 md:gap-12 p-4 pt-2 md:p-12 lg:p-16 items-center">
         {/* Left side - Animated Video with Loading State */}
-        <div className="relative aspect-square max-w-[280px] sm:max-w-[320px] md:max-w-[400px] lg:max-w-[500px] mx-auto md:ml-0 md:-mt-4 rounded-[2rem] overflow-hidden group flex items-center justify-center bg-black/5 animate-scale-in shadow-2xl">
+        <div className="relative aspect-square max-w-[220px] sm:max-w-[320px] md:max-w-[400px] lg:max-w-[500px] mx-auto md:ml-0 md:-mt-4 rounded-[2rem] overflow-hidden group flex items-center justify-center bg-black/5 animate-scale-in shadow-2xl">
 
           {/* Poster Image - Shows immediately */}
           <img
@@ -101,23 +101,25 @@ const HeroSection = () => {
         </div>
 
         {/* Right side - Content */}
-        <div className="flex flex-col justify-center space-y-6 md:space-y-8">
-          <div className="space-y-4 md:space-y-6">
-            <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold leading-[1.1] tracking-tight animate-slide-down hover:text-primary transition-colors duration-300 cursor-default">
+        <div className="flex flex-col justify-center space-y-3 md:space-y-8">
+          <div className="space-y-2 md:space-y-6">
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold leading-[1.1] tracking-tight animate-slide-down hover:text-primary transition-colors duration-300 cursor-default">
               <span className="inline-block animate-glow-pulse">AI-Powered</span>{" "}
               <span className="inline-block hover:animate-pulse animation-delay-100">Professional</span>{" "}
               <span className="inline-block hover:animate-pulse animation-delay-200">Appearance</span>
             </h1>
-            <p className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-xl animate-slide-up stagger-1 hover:text-foreground transition-colors duration-300">
+            <p className="text-muted-foreground text-base md:text-xl leading-relaxed max-w-xl animate-slide-up stagger-1 hover:text-foreground transition-colors duration-300">
               Instantly generate, refine, or modify formal attire and corporate looks with cutting-edge AI stylist intelligence.
             </p>
           </div>
 
-          <Link to="/waitlist" className="animate-scale-in stagger-2">
-            <Button className="ios-glass-button px-8 py-6 text-lg rounded-full hover:scale-105 transition-all duration-300 shadow-lg">
-              Join The Waitlist
-            </Button>
-          </Link>
+          <div className="flex justify-end md:justify-start -mt-24 md:mt-0 animate-scale-in stagger-2">
+            <Link to="/waitlist">
+              <Button className="ios-glass-button px-8 py-6 text-lg rounded-full hover:scale-105 transition-all duration-300 shadow-lg">
+                Join The Waitlist
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

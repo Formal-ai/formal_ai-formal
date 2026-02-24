@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { Check, ChevronsUpDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import flags from 'react-phone-number-input/flags';
 
 interface CountryOption {
     value?: string;
@@ -60,12 +61,13 @@ export default function CountrySelect({
                     <div className="flex items-center gap-2">
                         {value ? (
                             <div className="flex items-center gap-2">
-                                <img
-                                    src={`https://flagcdn.com/w40/${value.toLowerCase()}.png`}
-                                    srcSet={`https://flagcdn.com/w80/${value.toLowerCase()}.png 2x`}
-                                    alt={value}
-                                    className="w-5 h-auto object-cover rounded-[2px]"
-                                />
+                                <span className="w-5 h-3.5 flex items-center justify-center overflow-hidden rounded-[1px] shadow-sm">
+                                    {flags[value as keyof typeof flags] ? (
+                                        React.createElement(flags[value as keyof typeof flags])
+                                    ) : (
+                                        <span className="text-[10px]">{value}</span>
+                                    )}
+                                </span>
                                 <span className="text-sm font-medium">{value}</span>
                             </div>
                         ) : (
@@ -100,12 +102,13 @@ export default function CountrySelect({
                                         />
                                         <div className="mr-2 w-6 flex items-center justify-center">
                                             {option.value && (
-                                                <img
-                                                    src={`https://flagcdn.com/w40/${option.value.toLowerCase()}.png`}
-                                                    srcSet={`https://flagcdn.com/w80/${option.value.toLowerCase()}.png 2x`}
-                                                    alt={option.value}
-                                                    className="w-4 h-3 object-cover rounded-[1px]"
-                                                />
+                                                <span className="w-5 h-3.5 flex items-center justify-center overflow-hidden rounded-[1px] shadow-sm">
+                                                    {flags[option.value as keyof typeof flags] ? (
+                                                        React.createElement(flags[option.value as keyof typeof flags])
+                                                    ) : (
+                                                        <span className="text-[10px]">{option.value}</span>
+                                                    )}
+                                                </span>
                                             )}
                                         </div>
                                         {option.label}

@@ -112,7 +112,7 @@ const EditorLayout = ({ children }: { children: React.ReactNode }) => {
                         {navItems.map((item) => {
                             const Icon = item.icon;
                             const isActive = location.pathname === item.path;
-                            // @ts-ignore
+                            // @ts-expect-error
                             const isStudio = item.isStudio;
 
                             return (

@@ -52,7 +52,7 @@ const KeyBenefitsSection = () => {
       <div className="relative z-10 container mx-auto px-4">
         <div className="text-center mb-12 md:mb-16 typing-effect-trigger">
           <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
-            <span className="typing-effect">Built for professional credibility</span>
+            <span className="typing-effect">Built for professional <br className="md:hidden" /> <span className="text-blue-500">credibility</span></span>
           </h2>
           <p className="text-muted-foreground text-lg md:text-2xl max-w-3xl mx-auto font-medium leading-relaxed reveal-on-scroll stagger-delay-1">
             Formal.AI is designed for high-stakes professional contexts where accuracy and identity preservation matter.
