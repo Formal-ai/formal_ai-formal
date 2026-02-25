@@ -62,13 +62,13 @@ const HeroSection = () => {
     >
       <div className="grid md:grid-cols-2 gap-4 md:gap-12 p-4 pt-2 pb-14 md:pb-0 md:p-12 lg:p-16 items-center">
         {/* Left side - Animated Video with Loading State */}
-        <div className="relative aspect-square max-w-[220px] sm:max-w-[320px] md:max-w-[400px] lg:max-w-[500px] mx-auto md:ml-0 md:-mt-4 rounded-[2rem] overflow-hidden group flex items-center justify-center animate-scale-in shadow-2xl">
+        <div className="relative aspect-square max-w-[220px] sm:max-w-[320px] md:max-w-[400px] lg:max-w-[500px] mx-auto md:ml-0 md:-mt-4 rounded-[2rem] overflow-hidden group flex items-center justify-center bg-black/5 animate-scale-in shadow-2xl">
 
           {/* Poster Image - Shows immediately */}
           <img
             src="/hero-poster.png"
             alt="Formal.AI Hero"
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 scale-[1.05] ${isVideoPlaying ? "opacity-0" : "opacity-100"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 scale-[1.02] ${isVideoPlaying ? "opacity-0" : "opacity-100"
               }`}
           />
 
@@ -79,7 +79,7 @@ const HeroSection = () => {
             />
           )}
 
-          {/* Video - Fades in when ready - Scale slightly increased to ensure no gaps */}
+          {/* Video - Fades in when ready - Added slight scale to prevent sub-pixel line gaps */}
           <video
             ref={videoRef}
             autoPlay
@@ -88,7 +88,7 @@ const HeroSection = () => {
             playsInline
             preload="metadata"
             poster="/hero-poster.png"
-            className={`absolute inset-0 w-full h-full object-cover pointer-events-none select-none transition-opacity duration-700 scale-[1.05] ${isVideoPlaying ? "opacity-100" : "opacity-0"
+            className={`w-[101%] h-[101%] object-cover pointer-events-none select-none transition-opacity duration-700 scale-[1.02] ${isVideoPlaying ? "opacity-100" : "opacity-0"
               }`}
             onContextMenu={(e) => e.preventDefault()}
           >
@@ -98,6 +98,7 @@ const HeroSection = () => {
 
           {/* Premium Gradient Overlay/Vignette */}
           <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10 pointer-events-none" />
+          <div className="absolute inset-0 ring-1 ring-inset ring-black/10 rounded-[2rem] pointer-events-none" />
         </div>
 
         {/* Right side - Content */}
