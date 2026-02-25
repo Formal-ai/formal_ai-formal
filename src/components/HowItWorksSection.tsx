@@ -55,7 +55,7 @@ const HowItWorksSection = () => {
   };
 
   return (
-    <section className="py-16 md:py-20 bg-[#020205] overflow-hidden relative">
+    <section className="py-16 md:py-20 bg-background overflow-hidden relative transition-colors duration-500">
       <div
         className="absolute inset-0 z-0 pointer-events-none opacity-50 dark:opacity-100"
         style={{
@@ -80,7 +80,7 @@ const HowItWorksSection = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50"
+            className="text-3xl md:text-4xl font-bold tracking-tight text-foreground"
           >
             Real results. Real people.
           </motion.h2>
@@ -89,7 +89,7 @@ const HowItWorksSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-lg text-neutral-600 dark:text-neutral-400 font-medium max-w-2xl mx-auto"
+            className="text-lg text-muted-foreground font-medium max-w-2xl mx-auto"
           >
             Professional refinement without altering identity. See the difference our AI makes while maintaining true likeness.
           </motion.p>

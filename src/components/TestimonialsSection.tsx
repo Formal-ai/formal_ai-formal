@@ -47,10 +47,10 @@ const TestimonialsSection = () => {
     >
       <div className="relative z-10 container mx-auto px-4 text-center">
         <div className="mb-10">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white tracking-tight reveal-on-scroll">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 text-foreground tracking-tight">
             Loved by Professionals
           </h2>
-          <p className="text-blue-300/90 text-base md:text-xl max-w-2xl mx-auto font-medium leading-relaxed reveal-on-scroll stagger-delay-1">
+          <p className="text-blue-600 dark:text-blue-400/90 text-base md:text-xl max-w-2xl mx-auto font-medium leading-relaxed reveal-on-scroll stagger-delay-1">
             See how professionals are using Formal.AI to elevate their image
           </p>
         </div>
@@ -70,17 +70,17 @@ const TestimonialsSection = () => {
               </div>
 
               <div className="mb-4">
-                <h3 className="text-lg font-bold text-white mb-0.5">
+                <h3 className="text-lg font-bold text-foreground mb-0.5">
                   {testimonial.author}
                 </h3>
-                <p className="text-blue-400 text-xs font-semibold uppercase tracking-wider">
+                <p className="text-blue-600 dark:text-blue-400 text-xs font-semibold uppercase tracking-wider">
                   {testimonial.role}
                 </p>
               </div>
 
               <div className="w-8 h-px bg-blue-500/20 mb-4" />
 
-              <p className="text-blue-50/90 leading-relaxed text-base italic">
+              <p className="text-foreground/80 dark:text-blue-50/90 leading-relaxed text-base italic">
                 "{testimonial.quote}"
               </p>
             </div>

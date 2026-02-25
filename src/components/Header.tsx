@@ -5,14 +5,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import formalAiLogo from "@/assets/formal-ai-logo.png";
+import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 const LAUNCH_MODE = import.meta.env.VITE_LAUNCH_MODE || "live";
 
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState<any>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -28,15 +30,6 @@ const Header = () => {
   };
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const shouldBeDark = savedTheme === "dark" || (!savedTheme && prefersDark);
-
-    setIsDark(shouldBeDark);
-    if (shouldBeDark) {
-      document.documentElement.classList.add("dark");
-    }
-
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -69,7 +62,6 @@ const Header = () => {
   const [profileName, setProfileName] = useState("");
 
   const fetchProfile = async (userId: string) => {
-    // @ts-expect-error
     const { data, error } = await supabase
       .from('profiles')
       .select('full_name')
@@ -89,28 +81,27 @@ const Header = () => {
   };
 
   const toggleTheme = () => {
-    const newTheme = !isDark;
-    setIsDark(newTheme);
-
-    if (newTheme) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
+  const isDark = theme === "dark";
+
   return (
-    <header className={`sticky top-0 z-50 py-2 sm:py-4 transition-all duration-300 ${isScrolled ? 'backdrop-blur-xl bg-background/80' : ''}`}>
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+    <header
+      ref={headerRef}
+      onMouseMove={handleMouseMove}
+      className="sticky top-0 z-50 py-2 sm:py-4 transition-all duration-300 pointer-events-none"
+    >
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pointer-events-auto">
         <div
-          ref={headerRef}
-          onMouseMove={handleMouseMove}
-          className="relative flex items-center justify-between h-14 sm:h-16 liquid-glass-nav px-4 sm:px-6 group"
+          className={cn(
+            "relative flex items-center justify-between h-14 sm:h-16 liquid-glass-nav px-4 sm:px-6 group transition-all duration-500 transform-gpu",
+            isScrolled ? "bg-background/90 shadow-xl border-primary/20" : "bg-background/40 border-transparent"
+          )}
           style={{
             '--mouse-x': `${mousePosition.x}px`,
             '--mouse-y': `${mousePosition.y}px`,
+            '--light-opacity': isScrolled ? '0.4' : '1',
           } as React.CSSProperties}
         >
           {/* Logo */}
@@ -261,7 +252,7 @@ const Header = () => {
               </div>
             ) : LAUNCH_MODE === "waitlist" ? (
               <Link to="/waitlist" className="hidden md:flex">
-                <Button className="ios-glass-button rounded-full px-6 py-2 hover:scale-105 transition-all shadow-lg">
+                <Button className="ios-glass-button rounded-full px-6 py-2 hover:scale-105 transition-all">
                   Join The Waitlist
                 </Button>
               </Link>

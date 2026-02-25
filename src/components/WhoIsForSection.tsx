@@ -440,7 +440,7 @@ const WhoIsForSection = () => {
     });
 
     return (
-        <section className="py-24 md:py-32 relative overflow-hidden bg-[#020205] flex flex-col items-center justify-center min-h-[600px]">
+        <section className="py-24 md:py-32 relative overflow-hidden bg-background flex flex-col items-center justify-center min-h-[600px] transition-colors duration-500">
             {/* Background elements */}
             <div className="absolute top-[10%] left-[-10%] w-[600px] h-[600px] bg-blue-600/[0.03] blur-[150px] rounded-full pointer-events-none" />
             <div className="absolute bottom-[10%] right-[-10%] w-[600px] h-[600px] bg-indigo-600/[0.03] blur-[150px] rounded-full pointer-events-none" />
@@ -455,17 +455,17 @@ const WhoIsForSection = () => {
                     transition={{ duration: 1, ease: "easeOut" }}
                     className="flex flex-col items-center text-center mb-20 px-4"
                 >
-                    <h2 className="text-5xl md:text-7xl font-bold text-white tracking-tighter leading-none mb-4">
+                    <h2 className="text-5xl md:text-7xl font-bold text-foreground tracking-tighter leading-none mb-4">
                         Who is{' '}
                         <span className="relative">
-                            <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-b from-foreground via-foreground/90 to-foreground/40">
                                 Formal.AI
                             </span>
                             <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent blur-sm" />
                         </span>{' '}
                         for?
                     </h2>
-                    <p className="text-white/40 text-sm md:text-base uppercase tracking-[0.2em] font-medium max-w-2xl">
+                    <p className="text-muted-foreground text-sm md:text-base uppercase tracking-[0.2em] font-medium max-w-2xl">
                         Powering visual identity for the next generation of professional brands
                     </p>
                 </motion.div>
@@ -478,8 +478,8 @@ const WhoIsForSection = () => {
                     onMouseLeave={() => setIsHovered(false)}
                 >
                     {/* Horizontal Blending Fades */}
-                    <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#020205] to-transparent z-20 pointer-events-none" />
-                    <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#020205] to-transparent z-20 pointer-events-none" />
+                    <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-20 pointer-events-none" />
+                    <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-20 pointer-events-none" />
 
                     {/* The Track with subtle hover lift */}
                     <motion.div

@@ -23,7 +23,6 @@ const Auth = () => {
   const [verificationSent, setVerificationSent] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [resendCountdown, setResendCountdown] = useState(0);
 
   // Animation state
   const sideSectionRef = useRef<HTMLDivElement>(null);
@@ -54,16 +53,6 @@ const Auth = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (resendCountdown > 0) {
-      timer = setInterval(() => {
-        setResendCountdown((prev) => prev - 1);
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [resendCountdown]);
-
   const validatePassword = (pass: string) => {
     if (pass.length >= 15) return true;
     const hasNumber = /\d/.test(pass);
@@ -84,11 +73,10 @@ const Auth = () => {
       if (error) throw error;
       setResetSent(true);
       toast.success("Password reset link sent! Check your email.");
-    } catch (error) {
-      const err = error as Error;
-      console.error("Reset error:", err);
-      setError(err.message || "An error occurred while sending reset email.");
-      toast.error(err.message || "An error occurred.");
+    } catch (error: any) {
+      console.error("Reset error:", error);
+      setError(error.message || "An error occurred while sending reset email.");
+      toast.error(error.message || "An error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -140,45 +128,22 @@ const Auth = () => {
         const redirectTo = searchParams.get("redirectTo") || "/dashboard";
         navigate(redirectTo);
       }
-    } catch (error) {
-      const err = error as Error;
-      console.error("Auth error:", err);
+    } catch (error: any) {
+      console.error("Auth error:", error);
       let errorMessage = "An error occurred during authentication";
 
-      if (err.message.includes("Invalid login credentials")) {
+      if (error.message.includes("Invalid login credentials")) {
         errorMessage = "Invalid email or password. Please try again.";
-      } else if (err.message.includes("User already registered")) {
+      } else if (error.message.includes("User already registered")) {
         errorMessage = "This email is already registered. Please sign in instead.";
-      } else if (err.message.includes("Password should be at least")) {
+      } else if (error.message.includes("Password should be at least")) {
         errorMessage = "Password does not meet safety requirements.";
-      } else if (err.message.includes("Email not confirmed")) {
+      } else if (error.message.includes("Email not confirmed")) {
         errorMessage = "Please verify your email address before logging in.";
       }
 
       setError(errorMessage);
       toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResendVerification = async () => {
-    if (!email || resendCountdown > 0) return;
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth?verified=true`,
-        }
-      });
-      if (error) throw error;
-      toast.success("Verification email resent!");
-      setResendCountdown(60);
-    } catch (error) {
-      const err = error as Error;
-      toast.error(err.message || "Failed to resend verification email.");
     } finally {
       setIsLoading(false);
     }
@@ -197,24 +162,10 @@ const Auth = () => {
             Please confirm your email to activate your account and access the Studios.
           </p>
           <div className="pt-4 flex flex-col gap-3">
-            <Button
-              variant="default"
-              onClick={handleResendVerification}
-              disabled={isLoading || resendCountdown > 0}
-              className="rounded-full px-8 h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
-            >
-              {isLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : resendCountdown > 0 ? (
-                `Resend in ${resendCountdown}s`
-              ) : (
-                "Resend Verification Email"
-              )}
-            </Button>
             <Button variant="outline" onClick={() => {
               setVerificationSent(false);
               navigate("/auth");
-            }} className="rounded-full px-8 h-12 border-white/20 text-white hover:bg-white/5">
+            }} className="rounded-full px-8">
               Back to Sign In
             </Button>
           </div>
@@ -389,9 +340,8 @@ const Auth = () => {
                       },
                     });
                     if (error) throw error;
-                  } catch (error) {
-                    const err = error as Error;
-                    toast.error(err.message || "An error occurred with Google Sign In");
+                  } catch (error: any) {
+                    toast.error(error.message || "An error occurred with Google Sign In");
                   }
                 }}
               >

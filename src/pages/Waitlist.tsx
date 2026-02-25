@@ -58,22 +58,22 @@ const OptionCard = ({
 }) => (
     <motion.button
         type="button"
-        whileHover={{ scale: 1.005, backgroundColor: "rgba(var(--primary), 0.02)" }}
-        whileTap={{ scale: 0.995 }}
+        whileHover={{ scale: 1.01, backgroundColor: "rgba(var(--primary), 0.02)" }}
+        whileTap={{ scale: 0.99 }}
         onClick={onClick}
-        className={`group w-full text-left py-4 px-5 rounded-[2rem] border transition-all duration-300 relative overflow-hidden ${selected
+        className={`group w-full text-left py-3.5 px-4 md:py-4 md:px-6 rounded-2xl md:rounded-[2rem] border transition-all duration-300 relative overflow-hidden ${selected
             ? "border-primary dark:border-white bg-primary/10 dark:bg-white/10 shadow-lg shadow-primary/5 dark:shadow-white/5"
             : "border-border/60 dark:border-white/20 hover:border-primary/50 dark:hover:border-white/40 bg-card/80 dark:bg-white/[0.05]"
             }`}
     >
         <div className={`absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 transition-opacity duration-300 ${selected ? "opacity-100" : ""}`} />
 
-        <div className="flex items-center justify-between relative z-10">
-            <p className={`text-sm md:text-base transition-colors duration-200 ${selected ? "font-bold text-foreground dark:text-white" : "text-zinc-800 dark:text-zinc-200 font-medium group-hover:text-foreground dark:group-hover:text-white"}`}>
+        <div className="flex items-center justify-between gap-4 relative z-10">
+            <p className={`text-[0.9375rem] md:text-base leading-relaxed transition-colors duration-200 flex-1 ${selected ? "font-bold text-foreground dark:text-white" : "text-zinc-800 dark:text-zinc-200 font-medium group-hover:text-foreground dark:group-hover:text-white"}`}>
                 {label}
             </p>
 
-            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${selected
+            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all duration-300 ${selected
                 ? "border-primary dark:border-white bg-primary dark:bg-white scale-110"
                 : "border-muted-foreground/30 group-hover:border-primary/50 dark:group-hover:border-white/50"
                 }`}>
@@ -115,20 +115,20 @@ const QuestionBlock = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.1, duration: 0.5 }}
-        className="space-y-4 mb-8"
+        className="space-y-4 mb-10"
     >
-        <div className="flex items-baseline gap-4">
-            <span className="text-2xl font-mono text-primary/60 dark:text-blue-400/60 font-bold select-none">
+        <div className="flex items-start gap-3 md:gap-4">
+            <span className="text-xl md:text-2xl font-mono text-primary/60 dark:text-blue-400/60 font-bold select-none pt-0.5 md:pt-1">
                 0{index + 1}
             </span>
             <div className="space-y-1">
-                <h3 className="text-lg md:text-2xl font-bold text-foreground dark:text-white leading-tight tracking-tight">
+                <h3 className="text-xl md:text-2xl font-bold font-serif text-foreground dark:text-white leading-tight tracking-tight">
                     {question} {required && <span className="text-red-500 text-sm align-top font-normal">*</span>}
                 </h3>
             </div>
         </div>
 
-        <div className="grid gap-3 pl-0 md:pl-10">
+        <div className="grid gap-3.5 pl-0 md:pl-10">
             {options.map((opt) => (
                 <OptionCard
                     key={opt.value}
@@ -458,11 +458,11 @@ https://formalai.studio/`;
     const ageOptions = ["Under 18", "18–24", "25–34", "35–44", "45+"];
 
     return (
-        <div className="min-h-screen bg-black text-foreground transition-colors duration-300 relative overflow-hidden font-sans">
+        <div className="min-h-screen bg-background text-foreground transition-colors duration-300 relative overflow-hidden font-sans">
             <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
                 <Waves
                     backgroundColor="transparent"
-                    strokeColor="rgba(255,255,255,0.08)"
+                    strokeColor="hsla(var(--foreground) / 0.08)"
                 />
             </div>
             <Stars number={150} />
@@ -503,7 +503,7 @@ https://formalai.studio/`;
                                     />
                                 </div>
 
-                                <CardHeader className="pt-8 px-8 pb-2">
+                                <CardHeader className="pt-8 px-6 md:px-8 pb-2">
                                     <div className="flex items-center gap-3 mb-2">
                                         {[1, 2, 3, 4].map((s) => (
                                             <div
@@ -519,11 +519,11 @@ https://formalai.studio/`;
                                             </div>
                                         ))}
                                     </div>
-                                    <CardTitle className="text-2xl font-semibold tracking-tight">{stepTitles[step]?.title}</CardTitle>
-                                    <CardDescription className="text-muted-foreground">{stepTitles[step]?.desc}</CardDescription>
+                                    <CardTitle className="text-3xl md:text-4xl font-bold font-serif tracking-tight">{stepTitles[step]?.title}</CardTitle>
+                                    <CardDescription className="text-base md:text-lg text-muted-foreground mt-2">{stepTitles[step]?.desc}</CardDescription>
                                 </CardHeader>
 
-                                <CardContent className="p-8">
+                                <CardContent className="p-4 md:p-8">
                                     <input type="text" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} className="hidden" aria-hidden="true" />
 
                                     <AnimatePresence mode="wait">
@@ -576,13 +576,13 @@ https://formalai.studio/`;
 
                                                     <div className="space-y-2">
                                                         <Label className="text-sm font-medium text-muted-foreground dark:text-neutral-300">Age Range <span className="text-red-500">*</span></Label>
-                                                        <div className="grid grid-cols-5 gap-2">
+                                                        <div className="flex flex-wrap gap-2">
                                                             {ageOptions.map((age) => (
                                                                 <button
                                                                     key={age}
                                                                     type="button"
                                                                     onClick={() => setIdentity({ ...identity, ageRange: age })}
-                                                                    className={`py-3 px-2 rounded-2xl text-sm font-semibold border-2 transition-all ${identity.ageRange === age
+                                                                    className={`flex-1 min-w-[80px] py-3 px-3 rounded-2xl text-sm font-semibold border-2 transition-all whitespace-nowrap ${identity.ageRange === age
                                                                         ? "border-primary dark:border-white bg-primary/10 dark:bg-white/10 text-foreground dark:text-white"
                                                                         : "border-border dark:border-white/10 text-foreground/70 dark:text-white/60 hover:border-primary/40 dark:hover:border-white/30"
                                                                         }`}
@@ -809,7 +809,7 @@ https://formalai.studio/`;
                                                     </div>
                                                 </div>
 
-                                                <div className="grid grid-cols-2 gap-2 md:gap-4">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                                                     {/* Image A */}
                                                     <motion.div
                                                         whileHover={{ scale: 1.02 }}
@@ -818,7 +818,7 @@ https://formalai.studio/`;
                                                             }`}
                                                         onClick={() => setChallengeSelection("a")}
                                                     >
-                                                        <img src="/images/challenge/image-a.png" alt="Candidate A" className="w-full aspect-[4/5] object-cover" />
+                                                        <img src="/images/challenge/image-a.png" alt="Candidate A" className="w-full aspect-[3/4] sm:aspect-[4/5] object-cover" />
                                                         {challengeSelection === "a" && (
                                                             <div className="absolute top-2 right-2 md:top-4 md:right-4 p-1.5 md:p-2">
                                                                 <svg width="24" height="24" className="md:w-8 md:h-8 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] filter transition-all duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4">
@@ -844,7 +844,7 @@ https://formalai.studio/`;
                                                             }`}
                                                         onClick={() => setChallengeSelection("b")}
                                                     >
-                                                        <img src="/images/challenge/image-b.png" alt="Candidate B" className="w-full aspect-[4/5] object-cover" />
+                                                        <img src="/images/challenge/image-b.png" alt="Candidate B" className="w-full aspect-[3/4] sm:aspect-[4/5] object-cover" />
                                                         {challengeSelection === "b" && (
                                                             <div className="absolute top-2 right-2 md:top-4 md:right-4 p-1.5 md:p-2">
                                                                 <svg width="24" height="24" className="md:w-8 md:h-8 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] filter transition-all duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4">
